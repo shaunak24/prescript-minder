@@ -1,5 +1,6 @@
 package android.example.com.prescriptminder;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Work in progress !!", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
         });
@@ -81,19 +82,45 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_connect_device) {
-            // Handle the camera action
+
+            showSnackbar();
+
         } else if (id == R.id.nav_record_audio) {
 
-        } else if (id == R.id.nav_slideshow) {
+            showSnackbar();
 
         } else if (id == R.id.nav_scan_qr_code) {
 
-        } else if (id == R.id.nav_share) {
+            Intent intent = new Intent(getApplicationContext(), ScanActivity.class);
+            startActivity(intent);
+
+        } else if (id == R.id.nav_profile) {
+
+            showSnackbar();
+
+        } else if (id == R.id.nav_user_guide) {
+
+            showSnackbar();
+
+        }
+        else if (id == R.id.nav_share) {
+
+            showSnackbar();
+
+        }
+        else if (id == R.id.nav_contact_us) {
+
+            showSnackbar();
 
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void showSnackbar() {
+        Snackbar.make(getCurrentFocus(), "Work in progress !!", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show();
     }
 }

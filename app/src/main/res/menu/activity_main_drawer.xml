@@ -6,22 +6,22 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_connect_device"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:icon="@drawable/connect_device"
             android:title="Connect Device" />
         <item
             android:id="@+id/nav_record_audio"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/record"
             android:title="Record Audio" />
         <item
             android:id="@+id/nav_scan_qr_code"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/ic_menu_camera"
             android:title="Scan QR Code" />
         <item
             android:id="@+id/nav_profile"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:icon="@drawable/profile"
             android:title="My Profile" />
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/nav_user_guide"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="User Guide" />
         <item
