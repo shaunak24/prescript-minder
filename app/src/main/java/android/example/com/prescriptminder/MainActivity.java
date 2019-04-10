@@ -83,7 +83,8 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_connect_device) {
 
-            showSnackbar();
+            Intent intent = new Intent(getApplicationContext(), BluetoothActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_record_audio) {
 
