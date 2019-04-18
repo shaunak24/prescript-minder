@@ -25,7 +25,14 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Turn Bluetooth ON/OFF" />
+                android:text="Turn Bluetooth ON/OFF"
+                android:paddingRight="72dp"/>
+
+            <TextView
+                android:id="@+id/connectivity_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status"/>
 
         </LinearLayout>
 

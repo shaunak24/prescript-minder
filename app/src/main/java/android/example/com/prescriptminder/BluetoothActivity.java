@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -35,11 +37,17 @@ public class BluetoothActivity extends AppCompatActivity {
     ArrayAdapter<String> arrayAdapter;
     ArrayList<String> devices;
     TextView available_text;
+    TextView connectivity_status;
     View separator;
 
     private static final int REQUEST_ENABLED = 11;
     private static final int REQUEST_DISCOVERABLE = 10;
-    private static final int REQUEST_COARSE_LOCATION = 1;
+    private static final int REQUEST_COARSE_LOCATION = 9;
+    private static final int STATE_LISTENING = 1;
+    private static final int STATE_CONNECTING = 2;
+    private static final int STATE_CONNECTED = 3;
+    private static final int STATE_CONNECTION_FAILED = 4;
+    private static final int STATE_MESSAGE_RECEIVED = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +58,29 @@ public class BluetoothActivity extends AppCompatActivity {
         implementListeners();
         checkCoarseLocationPermission();
     }
+
+    Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message message) {
+            switch (message.what) {
+                case STATE_LISTENING:
+                    connectivity_status.setText("Listening...");
+                    break;
+                case STATE_CONNECTING:
+                    connectivity_status.setText("Connecting...");
+                    break;
+                case STATE_CONNECTED:
+                    connectivity_status.setText("Connected");
+                    break;
+                case STATE_CONNECTION_FAILED:
+                    connectivity_status.setText("Connection Failed");
+                    break;
+                case STATE_MESSAGE_RECEIVED:
+                    break;
+            }
+            return true;
+        }
+    });
 
     private void implementListeners() {
         bluetooth_discoverable.setOnClickListener(new View.OnClickListener() {
@@ -97,6 +128,7 @@ public class BluetoothActivity extends AppCompatActivity {
         devices = new ArrayList<>();
         available_text = findViewById(R.id.available_text);
         separator = findViewById(R.id.separator);
+        connectivity_status = findViewById(R.id.connectivity_status);
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         arrayAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, devices);
