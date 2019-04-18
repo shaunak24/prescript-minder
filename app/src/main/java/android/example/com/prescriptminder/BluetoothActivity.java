@@ -46,17 +46,12 @@ public class BluetoothActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
 
-        bluetooth_discoverable = findViewById(R.id.bluetooth_discoverable);
-        devices_list = findViewById(R.id.devices_list);
-        bluetooth_switch = findViewById(R.id.bluetooth_toggle);
-        bluetooth_scan = findViewById(R.id.bluetooth_scan);
-        devices = new ArrayList<>();
-        available_text = findViewById(R.id.available_text);
-        separator = findViewById(R.id.separator);
+        bluetooth_setup();
+        implementListeners();
+        checkCoarseLocationPermission();
+    }
 
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        arrayAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, devices);
-
+    private void implementListeners() {
         bluetooth_discoverable.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -92,7 +87,19 @@ public class BluetoothActivity extends AppCompatActivity {
                 }
             }
         });
-        checkCoarseLocationPermission();
+    }
+
+    private void bluetooth_setup() {
+        bluetooth_discoverable = findViewById(R.id.bluetooth_discoverable);
+        devices_list = findViewById(R.id.devices_list);
+        bluetooth_switch = findViewById(R.id.bluetooth_toggle);
+        bluetooth_scan = findViewById(R.id.bluetooth_scan);
+        devices = new ArrayList<>();
+        available_text = findViewById(R.id.available_text);
+        separator = findViewById(R.id.separator);
+
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        arrayAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, devices);
     }
 
     @Override
