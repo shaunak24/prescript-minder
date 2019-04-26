@@ -64,6 +64,18 @@ public class BluetoothActivity extends AppCompatActivity {
         connectivity_status = findViewById(R.id.connectivity_status);
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        if (bluetoothAdapter == null) {
+            showToast("Bluetooth not supported !!");
+        }
+
+        if (bluetoothAdapter.isEnabled()) {
+            bluetooth_switch.setChecked(true);
+        }
+        else {
+            bluetooth_switch.setChecked(false);
+        }
+
         arrayAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, devices);
 
         bluetooth_discoverable.setOnClickListener(new View.OnClickListener() {
@@ -91,6 +103,7 @@ public class BluetoothActivity extends AppCompatActivity {
         bluetooth_scan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                getPairedDevices();
                 available_text.setVisibility(View.VISIBLE);
                 separator.setVisibility(View.VISIBLE);
                 if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
@@ -175,7 +188,12 @@ public class BluetoothActivity extends AppCompatActivity {
 
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice bt = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                devices.add(bt.getName());
+                if (bt.getName() != null) {
+                    devices.add(bt.getName());
+                }
+                else {
+                    devices.add("No Name");
+                }
                 updateList();
             } else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
                 showToast("Discovery started");
