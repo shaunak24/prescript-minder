@@ -29,16 +29,16 @@ import java.util.Set;
 
 public class BluetoothActivity extends AppCompatActivity {
 
-    Button bluetooth_discoverable;
-    Button bluetooth_scan;
-    Switch bluetooth_switch;
-    ListView devices_list;
-    BluetoothAdapter bluetoothAdapter;
-    ArrayAdapter<String> arrayAdapter;
-    ArrayList<String> devices;
-    TextView available_text;
-    TextView connectivity_status;
-    View separator;
+    private Button bluetooth_discoverable;
+    private Button bluetooth_scan;
+    private Switch bluetooth_switch;
+    private ListView devices_list;
+    private BluetoothAdapter bluetoothAdapter;
+    private ArrayAdapter<String> arrayAdapter;
+    private ArrayList<String> devices;
+    private TextView available_text;
+    private TextView connectivity_status;
+    private View separator;
 
     private static final int REQUEST_ENABLED = 11;
     private static final int REQUEST_DISCOVERABLE = 10;
