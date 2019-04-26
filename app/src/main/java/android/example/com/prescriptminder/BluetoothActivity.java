@@ -64,6 +64,7 @@ public class BluetoothActivity extends AppCompatActivity {
         connectivity_status = findViewById(R.id.connectivity_status);
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        arrayAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, devices);
 
         if (bluetoothAdapter == null) {
             showToast("Bluetooth not supported !!");
@@ -76,7 +77,6 @@ public class BluetoothActivity extends AppCompatActivity {
             bluetooth_switch.setChecked(false);
         }
 
-        arrayAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, devices);
 
         bluetooth_discoverable.setOnClickListener(new View.OnClickListener() {
             @Override
