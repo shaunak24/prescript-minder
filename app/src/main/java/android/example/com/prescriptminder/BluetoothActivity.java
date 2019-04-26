@@ -54,35 +54,18 @@ public class BluetoothActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
 
-        bluetooth_setup();
-        implementListeners();
-        checkCoarseLocationPermission();
-    }
+        bluetooth_discoverable = findViewById(R.id.bluetooth_discoverable);
+        devices_list = findViewById(R.id.devices_list);
+        bluetooth_switch = findViewById(R.id.bluetooth_toggle);
+        bluetooth_scan = findViewById(R.id.bluetooth_scan);
+        devices = new ArrayList<>();
+        available_text = findViewById(R.id.available_text);
+        separator = findViewById(R.id.separator);
+        connectivity_status = findViewById(R.id.connectivity_status);
 
-    Handler handler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message message) {
-            switch (message.what) {
-                case STATE_LISTENING:
-                    connectivity_status.setText("Listening...");
-                    break;
-                case STATE_CONNECTING:
-                    connectivity_status.setText("Connecting...");
-                    break;
-                case STATE_CONNECTED:
-                    connectivity_status.setText("Connected");
-                    break;
-                case STATE_CONNECTION_FAILED:
-                    connectivity_status.setText("Connection Failed");
-                    break;
-                case STATE_MESSAGE_RECEIVED:
-                    break;
-            }
-            return true;
-        }
-    });
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        arrayAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, devices);
 
-    private void implementListeners() {
         bluetooth_discoverable.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -118,21 +101,32 @@ public class BluetoothActivity extends AppCompatActivity {
                 }
             }
         });
+
+        checkCoarseLocationPermission();
     }
 
-    private void bluetooth_setup() {
-        bluetooth_discoverable = findViewById(R.id.bluetooth_discoverable);
-        devices_list = findViewById(R.id.devices_list);
-        bluetooth_switch = findViewById(R.id.bluetooth_toggle);
-        bluetooth_scan = findViewById(R.id.bluetooth_scan);
-        devices = new ArrayList<>();
-        available_text = findViewById(R.id.available_text);
-        separator = findViewById(R.id.separator);
-        connectivity_status = findViewById(R.id.connectivity_status);
-
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        arrayAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, devices);
-    }
+    Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message message) {
+            switch (message.what) {
+                case STATE_LISTENING:
+                    connectivity_status.setText("Listening...");
+                    break;
+                case STATE_CONNECTING:
+                    connectivity_status.setText("Connecting...");
+                    break;
+                case STATE_CONNECTED:
+                    connectivity_status.setText("Connected");
+                    break;
+                case STATE_CONNECTION_FAILED:
+                    connectivity_status.setText("Connection Failed");
+                    break;
+                case STATE_MESSAGE_RECEIVED:
+                    break;
+            }
+            return true;
+        }
+    });
 
     @Override
     protected void onResume() {
