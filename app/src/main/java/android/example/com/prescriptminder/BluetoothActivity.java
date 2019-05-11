@@ -3,6 +3,7 @@ package android.example.com.prescriptminder;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -24,8 +25,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.UUID;
 
 public class BluetoothActivity extends AppCompatActivity {
 
@@ -48,6 +51,8 @@ public class BluetoothActivity extends AppCompatActivity {
     private static final int STATE_CONNECTED = 3;
     private static final int STATE_CONNECTION_FAILED = 4;
     private static final int STATE_MESSAGE_RECEIVED = 5;
+
+    private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +108,6 @@ public class BluetoothActivity extends AppCompatActivity {
         bluetooth_scan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getPairedDevices();
                 available_text.setVisibility(View.VISIBLE);
                 separator.setVisibility(View.VISIBLE);
                 if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
@@ -112,6 +116,7 @@ public class BluetoothActivity extends AppCompatActivity {
                         bluetoothAdapter.startDiscovery();
                     }
                 }
+                getPairedDevices();
             }
         });
 
@@ -256,5 +261,38 @@ public class BluetoothActivity extends AppCompatActivity {
     private void updateList() {
         arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, devices);
         devices_list.setAdapter(arrayAdapter);
+    }
+
+    private class ClientClass extends Thread {
+
+        private BluetoothDevice device;
+        private BluetoothSocket socket;
+
+        public ClientClass(BluetoothDevice device1) {
+            device = device1;
+            try {
+                socket = device.createRfcommSocketToServiceRecord(MY_UUID);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void run() {
+
+            bluetoothAdapter.cancelDiscovery();
+            try {
+                socket.connect();
+                Message message = Message.obtain();
+                message.what = STATE_CONNECTED;
+                handler.sendMessage(message);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Message message = Message.obtain();
+                message.what = STATE_CONNECTION_FAILED;
+                handler.sendMessage(message);
+            }
+        }
+
     }
 }
