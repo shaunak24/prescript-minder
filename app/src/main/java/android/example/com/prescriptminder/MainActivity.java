@@ -88,7 +88,8 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_record_audio) {
 
-            showSnackbar();
+            Intent intent = new Intent(getApplicationContext(), RecordActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_scan_qr_code) {
 

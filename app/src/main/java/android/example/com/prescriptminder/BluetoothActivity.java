@@ -307,7 +307,7 @@ public class BluetoothActivity extends AppCompatActivity {
         devices_list.setAdapter(arrayAdapter);
     }
 
-    private class ClientClass extends Thread {
+    private class ClientClass extends Thread            {
 
         private BluetoothDevice device;
         private BluetoothSocket socket;
