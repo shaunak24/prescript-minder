@@ -129,7 +129,6 @@ public class BluetoothActivity extends AppCompatActivity {
                         bluetoothAdapter.startDiscovery();
                     }
                 }
-                getPairedDevices();
             }
         });
 
@@ -231,16 +230,17 @@ public class BluetoothActivity extends AppCompatActivity {
                 BluetoothDevice bt = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 btDevices.add(bt);
                 if (bt.getName() != null) {
-                    devices.add(bt.getName());
+                    arrayAdapter.add(bt.getName());
                 }
                 else {
-                    devices.add("No Name");
+                    arrayAdapter.add(bt.getAddress());
                 }
                 updateList();
             } else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
                 showToast("Discovery started");
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 showToast("Discovery finished");
+                getPairedDevices();
             }
         }
     };
@@ -289,7 +289,7 @@ public class BluetoothActivity extends AppCompatActivity {
             if (bluetoothDeviceSet.size() > 0) {
                 for (BluetoothDevice bt : bluetoothDeviceSet) {
                     if(!devices.contains(bt.getName())) {
-                        devices.add(bt.getName());
+                        arrayAdapter.add(bt.getName());
                         btDevices.add(bt);
                     }
                 }
@@ -299,7 +299,11 @@ public class BluetoothActivity extends AppCompatActivity {
     }
 
     private void updateList() {
-        arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, devices);
+        //Set<String> devices_set = new TreeSet<>();
+        //devices_set.addAll(devices);
+        //arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, devices);
+        //devices_list.setAdapter(arrayAdapter);
+        arrayAdapter.notifyDataSetChanged();
         devices_list.setAdapter(arrayAdapter);
     }
 
@@ -311,11 +315,11 @@ public class BluetoothActivity extends AppCompatActivity {
         public ClientClass(BluetoothDevice device1) {
             device = device1;
             try {
-                socket = device.createRfcommSocketToServiceRecord(MY_UUID);
+                socket = device.createRfcommSocketToServiceRecord(DEFAULT_UUID);
             }
             catch (NullPointerException e) {
                 try {
-                    socket = device.createRfcommSocketToServiceRecord(DEFAULT_UUID);
+                    socket = device.createRfcommSocketToServiceRecord(MY_UUID);
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
