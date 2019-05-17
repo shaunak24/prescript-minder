@@ -1,43 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/record_fragment"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    tools:context=".RecordActivity"
+    android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar">
+    <com.melnykov.fab.FloatingActionButton
+        android:id="@+id/record_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
+        android:layout_margin="20dp"
+        android:src="@drawable/ic_mic"
+        app:fab_colorNormal="@color/colorPrimary" />
 
-    </include>
+    <Chronometer
+        android:id="@+id/chronometer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/record_progress_bar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="64dp"
+        android:fontFamily="sans-serif-condensed"
+        android:textSize="35sp" />
 
-    <com.astuetz.PagerSlidingTabStrip
-        android:id="@+id/tabStrip"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+    <ProgressBar
+        android:id="@+id/record_progress_bar"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/record_progressbar_bg"
+        android:indeterminate="false"
+        android:max="100"
+        android:progress="0"
+        android:progressDrawable="@drawable/record_progressbar" />
+
+    <Button
+        android:id="@+id/pause_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="20dp"
         android:background="@color/colorPrimary"
-        android:elevation="4dp"
-        app:pstsIndicatorColor="@color/colorPrimary"
-        app:pstsIndicatorHeight="5dp"
-        app:pstsShouldExpand="true">
+        android:drawableStart="@drawable/ic_pause"
+        android:text="PAUSE"
+        android:textColor="@android:color/white" />
 
-    </com.astuetz.PagerSlidingTabStrip>
+    <TextView
+        android:id="@+id/recording_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/pause_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="40dp"
+        android:maxLines="1"
+        android:text="Tap the button to start recording"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
-    <android.support.v4.view.ViewPager
-        android:id="@+id/pager"
-        android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_weight="1"
-        android:background="@android:color/white">
-
-    </android.support.v4.view.ViewPager>
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/container">
-    </FrameLayout>
-
-</LinearLayout>
+</RelativeLayout>
