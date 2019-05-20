@@ -1,13 +1,14 @@
 package android.example.com.prescriptminder;
 
-import android.content.Intent;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
@@ -15,18 +16,21 @@ import android.widget.Toast;
 
 import com.melnykov.fab.FloatingActionButton;
 
-import java.io.File;
+import java.io.IOException;
 
 public class RecordActivity extends AppCompatActivity {
 
-    FloatingActionButton startButton;
-    Button pauseButton;
-    TextView recordPrompt;
-    int recordPromptCount = 0;
-    Boolean startRecording = true;
-    Boolean pauseRecording = true;
-    Chronometer chronometer;
-    long timeWhenPaused = 0;
+    private FloatingActionButton startButton;
+    private Button pauseButton;
+    private Button playButton;
+    private TextView recordPrompt;
+    private int recordPromptCount = 0;
+    private Boolean startRecording = true;
+    private Boolean pauseRecording = true;
+    private Chronometer chronometer;
+    private long timeWhenPaused = 0;
+    private String outputFile;
+    private MediaRecorder mediaRecorder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +40,14 @@ public class RecordActivity extends AppCompatActivity {
         startButton = findViewById(R.id.record_button);
         pauseButton = findViewById(R.id.pause_button);
         recordPrompt = findViewById(R.id.recording_status);
+        playButton = findViewById(R.id.play_button);
+        outputFile = Environment.getExternalStorageDirectory() + "/prescriptMinder";
+
+        mediaRecorder = new MediaRecorder();
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mediaRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
+        mediaRecorder.setOutputFile(outputFile);
 
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,19 +66,28 @@ public class RecordActivity extends AppCompatActivity {
                 pauseRecording = !pauseRecording;
             }
         });
+
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MediaPlayer mediaPlayer = new MediaPlayer();
+                try {
+                    mediaPlayer.setDataSource(outputFile);
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void onRecordStart(Boolean start) {
 
-        Intent intent = new Intent(getApplication(), RecordingService.class);
         if(start) {
             startButton.setImageResource(R.drawable.ic_stop);
             showToast("Recording started");
 
-            File folder = new File(getApplication().getFilesDir(), "/PrescriptMinder");
-            if(!folder.exists()) {
-                folder.mkdir();
-            }
             chronometer.setBase(SystemClock.elapsedRealtime());
             chronometer.start();
             chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
@@ -86,8 +107,7 @@ public class RecordActivity extends AppCompatActivity {
                 }
             });
 
-            startService(intent);
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            startRecordingService();
             recordPrompt.setText("Recording" + ".");
             recordPromptCount++;
         }
@@ -97,9 +117,23 @@ public class RecordActivity extends AppCompatActivity {
             chronometer.setBase(SystemClock.elapsedRealtime());
             timeWhenPaused = 0;
             recordPrompt.setText("Tap the button to start recording");
-            stopService(intent);
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            stopRecordingService();
         }
+    }
+
+    private void startRecordingService() {
+        try {
+            mediaRecorder.prepare();
+            mediaRecorder.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void stopRecordingService() {
+        mediaRecorder.stop();
+        mediaRecorder.release();
+        mediaRecorder = null;
     }
 
     private void onRecordPause(Boolean pause) {

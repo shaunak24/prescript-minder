@@ -39,17 +39,6 @@
         android:progress="0"
         android:progressDrawable="@drawable/record_progressbar" />
 
-    <Button
-        android:id="@+id/pause_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="20dp"
-        android:background="@color/colorPrimary"
-        android:drawableStart="@drawable/ic_pause"
-        android:text="PAUSE"
-        android:textColor="@android:color/white" />
-
     <TextView
         android:id="@+id/recording_status"
         android:layout_width="wrap_content"
@@ -62,5 +51,28 @@
         android:textColor="@android:color/black"
         android:textSize="20sp"
         android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/pause_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="20dp"
+        android:background="@color/colorPrimary"
+        android:drawableStart="@drawable/ic_pause"
+        android:text="PAUSE"
+        android:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/play_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="20dp"
+        android:background="@color/colorPrimary"
+        android:drawableStart="@drawable/ic_play"
+        android:text="PLAY"
+        android:textColor="@android:color/white" />
 
 </RelativeLayout>
