@@ -53,6 +53,7 @@ public class RecordActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 pauseButton.setVisibility(View.VISIBLE);
+                playButton.setVisibility(View.VISIBLE);
                 onRecordStart(startRecording);
                 startRecording = !startRecording;
             }
@@ -134,6 +135,11 @@ public class RecordActivity extends AppCompatActivity {
         mediaRecorder.stop();
         mediaRecorder.release();
         mediaRecorder = null;
+        mediaRecorder = new MediaRecorder();
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mediaRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
+        mediaRecorder.setOutputFile(outputFile);
     }
 
     private void onRecordPause(Boolean pause) {

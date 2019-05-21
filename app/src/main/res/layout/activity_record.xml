@@ -43,7 +43,7 @@
         android:id="@+id/recording_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/pause_button"
+        android:layout_above="@+id/record_button"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="40dp"
         android:maxLines="1"
@@ -61,6 +61,7 @@
         android:background="@color/colorPrimary"
         android:drawableStart="@drawable/ic_pause"
         android:text="PAUSE"
+        android:visibility="invisible"
         android:textColor="@android:color/white" />
 
     <Button
@@ -73,6 +74,7 @@
         android:background="@color/colorPrimary"
         android:drawableStart="@drawable/ic_play"
         android:text="PLAY"
+        android:visibility="invisible"
         android:textColor="@android:color/white" />
 
 </RelativeLayout>
