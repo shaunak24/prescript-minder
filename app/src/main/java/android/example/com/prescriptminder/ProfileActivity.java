@@ -48,6 +48,7 @@ public class ProfileActivity extends AppCompatActivity {
                 });
                 MySingleton.getInstance(getApplicationContext()).addRequestToQueue(stringRequest);
             }
+
         });
 
     }
