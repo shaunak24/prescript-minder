@@ -13,13 +13,11 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 
 public class ProfileActivity extends AppCompatActivity {
 
     private TextView responseText;
     private RequestQueue requestQueue;
-    private StringRequest stringRequest;
     private Button sendButton;
     private EditText urlEditText;
 
@@ -29,14 +27,13 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
         responseText = findViewById(R.id.response);
-        requestQueue = Volley.newRequestQueue(this);
         sendButton = findViewById(R.id.url_send_button);
         urlEditText = findViewById(R.id.url);
 
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                stringRequest = new StringRequest(Request.Method.GET, urlEditText.getText().toString().trim(), new Response.Listener<String>() {
+                StringRequest stringRequest = new StringRequest(Request.Method.GET, urlEditText.getText().toString(), new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         responseText.setText(response);
@@ -46,11 +43,10 @@ public class ProfileActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         responseText.setText(error.toString());
-                        showToast("Kuch to gadbad hai");
+                        showToast("Kuch to gadbad hai daya");
                     }
                 });
-
-                requestQueue.add(stringRequest);
+                MySingleton.getInstance(getApplicationContext()).addRequestToQueue(stringRequest);
             }
         });
 
