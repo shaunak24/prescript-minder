@@ -98,7 +98,8 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_profile) {
 
-            showSnackbar();
+            Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_user_guide) {
 
