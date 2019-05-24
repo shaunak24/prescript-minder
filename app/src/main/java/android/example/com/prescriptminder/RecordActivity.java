@@ -23,6 +23,7 @@ public class RecordActivity extends AppCompatActivity {
     private FloatingActionButton startButton;
     private Button pauseButton;
     private Button playButton;
+    private Button printQR;
     private TextView recordPrompt;
     private int recordPromptCount = 0;
     private Boolean startRecording = true;
@@ -40,6 +41,7 @@ public class RecordActivity extends AppCompatActivity {
         chronometer = findViewById(R.id.chronometer);
         startButton = findViewById(R.id.record_button);
         pauseButton = findViewById(R.id.pause_button);
+        printQR = findViewById(R.id.print_QR_button);
         recordPrompt = findViewById(R.id.recording_status);
         playButton = findViewById(R.id.play_button);
         fileName = "nusta";//DateFormat.getDateTimeInstance().format(new Date());
@@ -81,6 +83,13 @@ public class RecordActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
+        });
+
+        printQR.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showToast("QR print hona chahiye !!");
             }
         });
     }
