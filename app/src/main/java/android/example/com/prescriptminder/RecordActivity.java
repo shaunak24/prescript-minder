@@ -31,6 +31,7 @@ public class RecordActivity extends AppCompatActivity {
     private long timeWhenPaused = 0;
     private String outputFile;
     private MediaRecorder mediaRecorder;
+    private String fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +42,8 @@ public class RecordActivity extends AppCompatActivity {
         pauseButton = findViewById(R.id.pause_button);
         recordPrompt = findViewById(R.id.recording_status);
         playButton = findViewById(R.id.play_button);
-        outputFile = Environment.getExternalStorageDirectory() + "/prescriptMinder";
+        fileName = "nusta";//DateFormat.getDateTimeInstance().format(new Date());
+        outputFile = Environment.getExternalStorageDirectory() + "/" + fileName;
 
         mediaRecorder = new MediaRecorder();
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
