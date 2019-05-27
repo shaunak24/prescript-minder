@@ -16,10 +16,14 @@ import android.widget.Toast;
 
 import com.melnykov.fab.FloatingActionButton;
 
+import java.io.File;
 import java.io.IOException;
+
+import okhttp3.Response;
 
 public class RecordActivity extends AppCompatActivity {
 
+    public static String PRINT_URL;
     private FloatingActionButton startButton;
     private Button pauseButton;
     private Button playButton;
@@ -33,6 +37,7 @@ public class RecordActivity extends AppCompatActivity {
     private String outputFile;
     private MediaRecorder mediaRecorder;
     private String fileName;
+    private File file;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,14 +49,8 @@ public class RecordActivity extends AppCompatActivity {
         printQR = findViewById(R.id.print_QR_button);
         recordPrompt = findViewById(R.id.recording_status);
         playButton = findViewById(R.id.play_button);
-        fileName = "nusta";//DateFormat.getDateTimeInstance().format(new Date());
-        outputFile = Environment.getExternalStorageDirectory() + "/" + fileName;
 
-        mediaRecorder = new MediaRecorder();
-        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        mediaRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
-        mediaRecorder.setOutputFile(outputFile);
+        mediaRecorder_setup();
 
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,14 +88,41 @@ public class RecordActivity extends AppCompatActivity {
         printQR.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showToast("QR print hona chahiye !!");
+                file = new File(outputFile);
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Response response = MyHttpRequest.uploadAudio(file);
+                            PRINT_URL = "Shaunak";//response.body().toString();
+                            //BluetoothActivity.sendUrl(PRINT_URL);
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (NullPointerException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                thread.start();
             }
         });
+    }
+
+    private void mediaRecorder_setup() {
+        mediaRecorder = new MediaRecorder();
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mediaRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
+        fileName = "Hello";//DateFormat.getDateTimeInstance().format(new Date());
+        outputFile = Environment.getExternalStorageDirectory() + "/" + fileName;
+        mediaRecorder.setOutputFile(outputFile);
     }
 
     private void onRecordStart(Boolean start) {
 
         if(start) {
+            printQR.setVisibility(View.INVISIBLE);
             startButton.setImageResource(R.drawable.ic_stop);
             showToast("Recording started");
 
@@ -124,6 +150,7 @@ public class RecordActivity extends AppCompatActivity {
             recordPromptCount++;
         }
         else {
+            printQR.setVisibility(View.VISIBLE);
             startButton.setImageResource(R.drawable.ic_mic);
             chronometer.stop();
             chronometer.setBase(SystemClock.elapsedRealtime());
@@ -146,11 +173,7 @@ public class RecordActivity extends AppCompatActivity {
         mediaRecorder.stop();
         mediaRecorder.release();
         mediaRecorder = null;
-        mediaRecorder = new MediaRecorder();
-        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        mediaRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
-        mediaRecorder.setOutputFile(outputFile);
+        mediaRecorder_setup();
     }
 
     private void onRecordPause(Boolean pause) {

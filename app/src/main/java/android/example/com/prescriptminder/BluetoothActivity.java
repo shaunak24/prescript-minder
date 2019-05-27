@@ -16,6 +16,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -48,7 +49,7 @@ public class BluetoothActivity extends AppCompatActivity {
     private TextView available_text;
     private TextView connectivity_status;
     private View separator;
-    private Communication communication;
+    private static Communication communication;
 
     private static final int REQUEST_ENABLED = 11;
     private static final int REQUEST_DISCOVERABLE = 10;
@@ -146,12 +147,9 @@ public class BluetoothActivity extends AppCompatActivity {
         bluetooth_send_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String url = "Kuch to likh !!";
-                if(url_edittext.getText() != null) {
-                    url = url_edittext.getText().toString().trim();
-                }
+                String url = RecordActivity.PRINT_URL;
                 communication.write(url.getBytes());
-                showToast("URL sent");
+                Log.e("BluetoothActivity", "Url sent : " + url);
             }
         });
 
@@ -180,6 +178,11 @@ public class BluetoothActivity extends AppCompatActivity {
             return true;
         }
     });
+
+    public static void sendUrl(String url) {
+        communication.write(url.getBytes());
+        Log.e("BluetoothActivity", "URL sent : " + url);
+    }
 
     @Override
     protected void onResume() {

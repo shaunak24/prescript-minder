@@ -33,8 +33,4 @@
         android:textSize="20sp"
         android:padding="8dp"/>
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView"/>
 </LinearLayout>
