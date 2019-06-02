@@ -4,6 +4,8 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -22,6 +24,8 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -116,7 +120,13 @@ public class MainActivity extends AppCompatActivity
         }
         else if (id == R.id.nav_share) {
 
-            showSnackbar();
+            ApplicationInfo api = getApplicationContext().getApplicationInfo();
+            String apkPath = api.sourceDir;
+
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("application/vnd.android.package-archive");
+            intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(apkPath)));
+            startActivity(Intent.createChooser(intent, "Share App using"));
 
         }
         else if (id == R.id.nav_contact_us) {
@@ -141,8 +151,7 @@ public class MainActivity extends AppCompatActivity
         //check for null
         if (result != null) {
             if (result.getContents() == null) {
-                Snackbar.make(getCurrentFocus(), "Zhol", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
             } else {
                 //show dialogue with result
                 showResultDialogue(result.getContents());
