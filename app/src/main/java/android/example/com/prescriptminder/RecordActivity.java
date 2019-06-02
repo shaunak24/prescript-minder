@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,6 +29,7 @@ public class RecordActivity extends AppCompatActivity {
     private Button pauseButton;
     private Button playButton;
     private Button printQR;
+    private Button upload;
     private TextView recordPrompt;
     private int recordPromptCount = 0;
     private Boolean startRecording = true;
@@ -49,20 +51,18 @@ public class RecordActivity extends AppCompatActivity {
         printQR = findViewById(R.id.print_QR_button);
         recordPrompt = findViewById(R.id.recording_status);
         playButton = findViewById(R.id.play_button);
+        upload = findViewById(R.id.upload_audio);
 
         mediaRecorder_setup();
 
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pauseButton.setVisibility(View.VISIBLE);
-                playButton.setVisibility(View.VISIBLE);
                 onRecordStart(startRecording);
                 startRecording = !startRecording;
             }
         });
 
-        pauseButton.setVisibility(View.GONE);
         pauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -88,15 +88,31 @@ public class RecordActivity extends AppCompatActivity {
         printQR.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            BluetoothActivity.sendUrl(PRINT_URL);
+                        } catch (NullPointerException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                thread.start();
+            }
+        });
+
+        upload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 file = new File(outputFile);
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
                             Response response = MyHttpRequest.uploadAudio(file);
-                            PRINT_URL = "Shaunak";//response.body().toString();
-                            //BluetoothActivity.sendUrl(PRINT_URL);
-
+                            PRINT_URL = response.body().string();
+                            Log.e("RecordActivity", PRINT_URL);
                         } catch (IOException e) {
                             e.printStackTrace();
                         } catch (NullPointerException e) {
@@ -114,7 +130,7 @@ public class RecordActivity extends AppCompatActivity {
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         mediaRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
-        fileName = "Hello";//DateFormat.getDateTimeInstance().format(new Date());
+        fileName = "audio1";//DateFormat.getDateTimeInstance().format(new Date());
         outputFile = Environment.getExternalStorageDirectory() + "/" + fileName;
         mediaRecorder.setOutputFile(outputFile);
     }
@@ -122,7 +138,6 @@ public class RecordActivity extends AppCompatActivity {
     private void onRecordStart(Boolean start) {
 
         if(start) {
-            printQR.setVisibility(View.INVISIBLE);
             startButton.setImageResource(R.drawable.ic_stop);
             showToast("Recording started");
 
@@ -150,7 +165,6 @@ public class RecordActivity extends AppCompatActivity {
             recordPromptCount++;
         }
         else {
-            printQR.setVisibility(View.VISIBLE);
             startButton.setImageResource(R.drawable.ic_mic);
             chronometer.stop();
             chronometer.setBase(SystemClock.elapsedRealtime());
@@ -183,6 +197,7 @@ public class RecordActivity extends AppCompatActivity {
             pauseButton.setText("Resume");
             timeWhenPaused = chronometer.getBase() - SystemClock.elapsedRealtime();
             chronometer.stop();
+            mediaRecorder.pause();
         }
         else {
             pauseButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_pause, 0, 0, 0);
@@ -190,6 +205,7 @@ public class RecordActivity extends AppCompatActivity {
             pauseButton.setText("Pause");
             chronometer.setBase(SystemClock.elapsedRealtime() + timeWhenPaused);
             chronometer.start();
+            mediaRecorder.resume();
         }
     }
 

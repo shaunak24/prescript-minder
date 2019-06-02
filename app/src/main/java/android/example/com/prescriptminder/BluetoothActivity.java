@@ -124,12 +124,13 @@ public class BluetoothActivity extends AppCompatActivity {
                 available_text.setVisibility(View.VISIBLE);
                 separator.setVisibility(View.VISIBLE);
                 devices.clear();
-                if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
-                    if (checkCoarseLocationPermission()) {
-                        devices.removeAll(devices);
-                        bluetoothAdapter.startDiscovery();
-                    }
-                }
+                getPairedDevices();
+//                if (bluetoothAdapter != null && bluetoothAdapter.isEnabled()) {
+//                    if (checkCoarseLocationPermission()) {
+//                        devices.removeAll(devices);
+//                        bluetoothAdapter.startDiscovery();
+//                    }
+//                }
             }
         });
 
@@ -147,7 +148,7 @@ public class BluetoothActivity extends AppCompatActivity {
         bluetooth_send_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String url = RecordActivity.PRINT_URL;
+                String url = "Divyesh";//RecordActivity.PRINT_URL;
                 communication.write(url.getBytes());
                 Log.e("BluetoothActivity", "Url sent : " + url);
             }
@@ -243,7 +244,6 @@ public class BluetoothActivity extends AppCompatActivity {
                 showToast("Discovery started");
             } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                 showToast("Discovery finished");
-                getPairedDevices();
             }
         }
     };

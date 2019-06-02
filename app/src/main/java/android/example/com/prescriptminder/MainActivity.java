@@ -1,18 +1,27 @@
 package android.example.com.prescriptminder;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
+
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -41,6 +50,7 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
     }
 
     @Override
@@ -92,8 +102,7 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_scan_qr_code) {
 
-            Intent intent = new Intent(getApplicationContext(), ScanActivity.class);
-            startActivity(intent);
+           new IntentIntegrator(MainActivity.this).setCaptureActivity(ScanActivity.class).initiateScan();
 
         } else if (id == R.id.nav_profile) {
 
@@ -124,5 +133,52 @@ public class MainActivity extends AppCompatActivity
     public void showSnackbar() {
         Snackbar.make(getCurrentFocus(), "Work in progress !!", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //We will get scan results here
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        //check for null
+        if (result != null) {
+            if (result.getContents() == null) {
+                Snackbar.make(getCurrentFocus(), "Zhol", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            } else {
+                //show dialogue with result
+                showResultDialogue(result.getContents());
+            }
+        } else {
+            // This is important, otherwise the result will not be passed to the fragment
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    //method to construct dialogue with scan results
+    public void showResultDialogue(final String result) {
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(this);
+        }
+        builder.setTitle("Scan Result")
+                .setMessage("Scanned result is " + result)
+                .setPositiveButton("Copy result", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // continue with delete
+                        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText("Scan Result", result);
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(MainActivity.this, "Result copied to clipboard", Toast.LENGTH_SHORT).show();
+
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // do nothing
+                        dialog.dismiss();
+                    }
+                })
+                .show();
     }
 }

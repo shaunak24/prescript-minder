@@ -35,7 +35,7 @@
         android:layout_marginTop="30dp"
         android:background="@drawable/record_progressbar_bg"
         android:indeterminate="false"
-        android:max="100"
+        android:max="50"
         android:progress="0"
         android:progressDrawable="@drawable/record_progressbar" />
 
@@ -55,13 +55,26 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/print_QR_button"
+        android:id="@+id/upload_audio"
         android:background="@color/colorPrimary"
-        android:text="PRINT QR"
+        android:text="UPLOAD"
+        android:layout_margin="20dp"
         android:textColor="@android:color/white"
         android:layout_above="@+id/record_button"
         android:layout_centerHorizontal="true"
-        android:visibility="invisible"/>
+        android:layout_alignParentLeft="true"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/print_QR_button"
+        android:background="@color/colorPrimary"
+        android:text="PRINT QR"
+        android:layout_margin="20dp"
+        android:textColor="@android:color/white"
+        android:layout_above="@+id/record_button"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentRight="true"/>
 
     <Button
         android:id="@+id/pause_button"
@@ -72,7 +85,6 @@
         android:background="@color/colorPrimary"
         android:drawableStart="@drawable/ic_pause"
         android:text="PAUSE"
-        android:visibility="invisible"
         android:textColor="@android:color/white" />
 
     <Button
@@ -85,7 +97,6 @@
         android:background="@color/colorPrimary"
         android:drawableStart="@drawable/ic_play"
         android:text="PLAY"
-        android:visibility="invisible"
         android:textColor="@android:color/white" />
 
 </RelativeLayout>
