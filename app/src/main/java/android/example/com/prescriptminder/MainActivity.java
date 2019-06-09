@@ -20,6 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -30,6 +31,7 @@ import java.io.File;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    public static TextView result;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +39,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        result = findViewById(R.id.result);
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,7 +109,9 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_scan_qr_code) {
 
-           new IntentIntegrator(MainActivity.this).setCaptureActivity(ScanActivity.class).initiateScan();
+           //new IntentIntegrator(MainActivity.this).setCaptureActivity(ScanActivity.class).initiateScan();
+            Intent intent = new Intent(getApplicationContext(), NewScanActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_profile) {
 
