@@ -6,8 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -92,30 +92,29 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
         if (id == R.id.nav_connect_device) {
 
-            Intent intent = new Intent(getApplicationContext(), BluetoothActivity.class);
+            Intent intent = new Intent(MainActivity.this, BluetoothActivity.class);
             startActivity(intent);
 
         } else if (id == R.id.nav_record_audio) {
 
-            Intent intent = new Intent(getApplicationContext(), RecordActivity.class);
+            Intent intent = new Intent(MainActivity.this, RecordActivity.class);
             startActivity(intent);
 
         } else if (id == R.id.nav_scan_qr_code) {
 
            //new IntentIntegrator(MainActivity.this).setCaptureActivity(ScanActivity.class).initiateScan();
-            Intent intent = new Intent(getApplicationContext(), NewScanActivity.class);
+            Intent intent = new Intent(MainActivity.this, NewScanActivity.class);
             startActivity(intent);
 
         } else if (id == R.id.nav_profile) {
 
-            Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
             startActivity(intent);
 
         } else if (id == R.id.nav_user_guide) {
@@ -125,7 +124,7 @@ public class MainActivity extends AppCompatActivity
         }
         else if (id == R.id.nav_share) {
 
-            ApplicationInfo api = getApplicationContext().getApplicationInfo();
+            ApplicationInfo api = getApplicationInfo();
             String apkPath = api.sourceDir;
 
             Intent intent = new Intent(Intent.ACTION_SEND);
@@ -146,35 +145,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void showSnackbar() {
-        Snackbar.make(getCurrentFocus(), "Work in progress !!", Snackbar.LENGTH_LONG)
+        Snackbar.make(findViewById(R.id.fab), "Work in progress !!", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //We will get scan results here
+        super.onActivityResult(requestCode, resultCode, data);
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         //check for null
-        if (result != null) {
-            if (result.getContents() == null) {
-
-            } else {
-                //show dialogue with result
+        if (result != null)
+            if (result.getContents() != null)
                 showResultDialogue(result.getContents());
-            }
-        } else {
-            // This is important, otherwise the result will not be passed to the fragment
-            super.onActivityResult(requestCode, resultCode, data);
-        }
     }
 
     //method to construct dialogue with scan results
     public void showResultDialogue(final String result) {
         AlertDialog.Builder builder;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
-        } else {
-            builder = new AlertDialog.Builder(this);
-        }
+        builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
         builder.setTitle("Scan Result")
                 .setMessage("Scanned result is " + result)
                 .setPositiveButton("Copy result", new DialogInterface.OnClickListener() {
@@ -182,6 +170,7 @@ public class MainActivity extends AppCompatActivity
                         // continue with delete
                         ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
                         ClipData clip = ClipData.newPlainText("Scan Result", result);
+                        assert clipboard != null;
                         clipboard.setPrimaryClip(clip);
                         Toast.makeText(MainActivity.this, "Result copied to clipboard", Toast.LENGTH_SHORT).show();
 

@@ -16,16 +16,6 @@
         android:src="@drawable/ic_mic"
         app:fab_colorNormal="@color/colorPrimary" />
 
-    <Chronometer
-        android:id="@+id/chronometer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/record_progress_bar"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="64dp"
-        android:fontFamily="sans-serif-condensed"
-        android:textSize="35sp" />
-
     <ProgressBar
         android:id="@+id/record_progress_bar"
         android:layout_width="200dp"
@@ -38,6 +28,16 @@
         android:max="50"
         android:progress="0"
         android:progressDrawable="@drawable/record_progressbar" />
+
+    <Chronometer
+        android:id="@+id/chronometer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/record_progress_bar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="64dp"
+        android:fontFamily="sans-serif-condensed"
+        android:textSize="35sp" />
 
     <TextView
         android:id="@+id/recording_status"
@@ -100,3 +100,37 @@
         android:textColor="@android:color/white" />
 
 </RelativeLayout>
+
+<!--<android.support.constraint.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"-->
+    <!--xmlns:android="http://schemas.android.com/apk/res/android">-->
+
+    <!--<com.tyorikan.voicerecordingvisualizer.VisualizerView-->
+        <!--android:id="@+id/visualizer"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="200dp"-->
+        <!--android:layout_marginTop="8dp"-->
+        <!--android:layout_marginBottom="8dp"-->
+        <!--android:background="@drawable/background_splash"-->
+        <!--app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--app:layout_constraintEnd_toEndOf="parent"-->
+        <!--app:layout_constraintStart_toStartOf="parent"-->
+        <!--app:layout_constraintTop_toTopOf="parent"-->
+        <!--app:renderColor="@color/colorAccent"-->
+        <!--app:renderRange="both"-->
+        <!--app:numColumns="100"/>-->
+
+    <!--<Button-->
+        <!--android:id="@+id/button"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginStart="8dp"-->
+        <!--android:layout_marginEnd="8dp"-->
+        <!--android:layout_marginBottom="8dp"-->
+        <!--android:text="pata nahi"-->
+        <!--app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--app:layout_constraintEnd_toEndOf="parent"-->
+        <!--app:layout_constraintStart_toStartOf="parent" />-->
+
+<!--</android.support.constraint.ConstraintLayout>-->

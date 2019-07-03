@@ -230,3 +230,41 @@ public class RecordActivity extends AppCompatActivity {
     }
 }
 
+//import android.os.Bundle;
+//import android.support.annotation.Nullable;
+//import android.support.v7.app.AppCompatActivity;
+//import android.view.View;
+//
+//import com.tyorikan.voicerecordingvisualizer.RecordingSampler;
+//import com.tyorikan.voicerecordingvisualizer.VisualizerView;
+//
+//public class RecordActivity extends AppCompatActivity
+//{
+//    private RecordingSampler recordingSampler;
+//
+//    @Override
+//    protected void onCreate(@Nullable Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        setContentView(R.layout.activity_record);
+//
+//        VisualizerView visualizerView = findViewById(R.id.visualizer);
+//
+//        recordingSampler = new RecordingSampler();
+//        recordingSampler.setSamplingInterval(100); // voice sampling interval
+//        recordingSampler.link(visualizerView);     // link to visualizer
+//        recordingSampler.startRecording();
+//
+//        findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                recordingSampler.stopRecording();
+//            }
+//        });
+//    }
+//
+//    @Override
+//    protected void onDestroy() {
+//        recordingSampler.release();
+//        super.onDestroy();
+//    }
+//}
