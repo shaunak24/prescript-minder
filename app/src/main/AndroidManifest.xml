@@ -21,21 +21,35 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
         <activity
-            android:name=".MainActivity"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:name=".activities.MainActivity"
+            android:label="@string/title_activity_main">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".activities.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ScanActivity" />
-        <activity
-            android:name=".BluetoothActivity"
-            android:windowSoftInputMode="stateAlwaysHidden" />
-        <activity android:name=".RecordActivity" />
+        <!--<activity-->
+            <!--android:name=".MainActivity"-->
+            <!--android:label="@string/app_name"-->
+            <!--android:theme="@style/AppTheme.NoActionBar">-->
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.VIEW" />-->
+            <!--</intent-filter>-->
+        <!--</activity>-->
+        <!--<activity-->
+            <!--android:name=".BluetoothActivity"-->
+            <!--android:windowSoftInputMode="stateAlwaysHidden" />-->
+        <!--<activity android:name=".RecordActivity" />-->
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -47,9 +61,8 @@
                 android:resource="@xml/filepaths" />
         </provider>
 
-        <activity android:name=".ProfileActivity" />
-        <activity android:name=".ScanLinkActivity" />
-        <activity android:name=".NewScanActivity"></activity>
+        <!--<activity android:name=".ProfileActivity" />-->
+        <!--<activity android:name=".NewScanActivity" />-->
     </application>
 
 </manifest>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_recent_scan"
+        android:icon="@drawable/ic_history_clock_button"
+        android:title="Recent"
+        android:orderInCategory="1"/>
+
+    <item
+        android:id="@+id/navigation_connect_device"
+        android:icon="@drawable/ic_bluetooth_connected"
+        android:title="Connect"
+        android:orderInCategory="2"/>
+
+    <item
+        android:id="@+id/navigation_scan_qr_code"
+        android:icon="@drawable/ic_qr_code"
+        android:title="Scan"
+        android:orderInCategory="3"/>
+
+    <item
+        android:id="@+id/navigation_record_audio"
+        android:icon="@drawable/ic_microphone"
+        android:title="Record"
+        android:orderInCategory="4"/>
+
+    <item
+        android:id="@+id/navigation_profile"
+        android:icon="@drawable/ic_profile"
+        android:title="Profile"
+        android:orderInCategory="5"/>
+
+</menu>
