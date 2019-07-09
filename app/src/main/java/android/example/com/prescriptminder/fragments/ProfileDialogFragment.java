@@ -4,11 +4,16 @@ package android.example.com.prescriptminder.fragments;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.example.com.prescriptminder.R;
+import android.example.com.prescriptminder.activities.LoginActivity;
+import android.example.com.prescriptminder.activities.MainActivity;
 import android.example.com.prescriptminder.utils.Constants;
 import android.example.com.prescriptminder.utils.OkHttpUtils;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -36,8 +41,9 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -52,48 +58,45 @@ import okhttp3.Response;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ProfileFragment extends Fragment {
-
-    private static ProfileFragment profileFragment;
+public class ProfileDialogFragment extends DialogFragment {
 
     private static EditText birthdayText;
-    private EditText cityText;
-    private RadioGroup genderRadioGroup;
 
-    public ProfileFragment() {
+    public ProfileDialogFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Dialog dialog = getDialog();
+        Objects.requireNonNull(dialog.getWindow()).setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-//        MainActivity.navigation.setSelectedItemId(R.id.navigation_profile);
-
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile, container, false);
+        return inflater.inflate(R.layout.user_profile_layout, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
+        GoogleSignInAccount googleSignInAccount = GoogleSignIn.getLastSignedInAccount(Objects.requireNonNull(getContext()));
+        String personName = Objects.requireNonNull(googleSignInAccount).getGivenName() + " " + googleSignInAccount.getFamilyName();
+        final String email = Objects.requireNonNull(googleSignInAccount).getEmail();
+        Uri profilePicture = googleSignInAccount.getPhotoUrl();
 
-        SharedPreferences sharedPref = Objects.requireNonNull(getActivity()).getPreferences(Context.MODE_PRIVATE);
-        final String email = sharedPref.getString("email", "null");
-        String personName = sharedPref.getString("personName", "null");
-        String profilePicture = sharedPref.getString("profilePicture", "null");
-        String gender = sharedPref.getString("gender", "null");
-        String birthday = sharedPref.getString("birthday", "null");
-        String city = sharedPref.getString("city", "null");
-
-        ProgressBar progressBar = view.findViewById(R.id.profile_progress);
+//        setProfileRequestJson(email);
         TextView nameText = view.findViewById(R.id.username_text);
         nameText.setText(personName);
-        TextView emailText = view.findViewById(R.id.email_text);
+        final EditText emailText = view.findViewById(R.id.email_text);
         emailText.setText(email);
         ImageView profileImage = view.findViewById(R.id.profile_picture);
-        setCircleCropImage(getContext(), profilePicture, profileImage, progressBar);
-        cityText = view.findViewById(R.id.city_text);
-        cityText.setText(city);
+        setCircleCropImage(getContext(), profilePicture, profileImage, (ProgressBar) (view.findViewById(R.id.profile_progress)));
+        final EditText cityText = view.findViewById(R.id.city_text);
+        cityText.setText("");
         cityText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -112,7 +115,7 @@ public class ProfileFragment extends Fragment {
             }
         });
         birthdayText = view.findViewById(R.id.birthday_text);
-        birthdayText.setText(birthday);
+        birthdayText.setText("");
         birthdayText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -135,30 +138,18 @@ public class ProfileFragment extends Fragment {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus)
                 {
-                    DialogFragment dateFragment = new DatePickerFragment();
+                    DialogFragment dateFragment = new ProfileDialogFragment.DatePickerFragment();
                     dateFragment.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "datepicker");
                 }
             }
         });
-        genderRadioGroup = view.findViewById(R.id.gender_radio_group);
-        switch (Objects.requireNonNull(gender))
-        {
-            case "Male":
-                genderRadioGroup.check(R.id.male_radio_button);
-                break;
-            case "Female":
-                genderRadioGroup.check(R.id.female_radio_button);
-                break;
-            case "Other":
-                genderRadioGroup.check(R.id.other_radio_button);
-                break;
-        }
+        final RadioGroup genderRadioGroup = view.findViewById(R.id.gender_radio_group);
+        genderRadioGroup.clearCheck();
 
         view.findViewById(R.id.save_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if (!TextUtils.isEmpty(birthdayText.getText()) && !TextUtils.isEmpty(cityText.getText()))
+                if (!TextUtils.isEmpty(email) && !TextUtils.isEmpty(birthdayText.getText()) && !TextUtils.isEmpty(cityText.getText()))
                 {
                     try
                     {
@@ -181,13 +172,22 @@ public class ProfileFragment extends Fragment {
 
                             @Override
                             public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                                JSONObject responseJson = null;
-                                try {
-                                    responseJson = new JSONObject(Objects.requireNonNull(response.body()).string());
-                                    Log.e("responseJson", responseJson.getString("status"));
-//                                    Toast.makeText(getContext(), responseJson.getString("status"), Toast.LENGTH_SHORT).show();
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
+                                try
+                                {
+                                    JSONObject responseJson = new JSONObject(Objects.requireNonNull(response.body()).string());
+                                    String status = responseJson.getString("status");
+                                    if (status.equalsIgnoreCase("ok"))
+                                    {
+                                        dismiss();
+                                        Intent intent = new Intent(getContext(), MainActivity.class);
+                                        intent.putExtra("userType", LoginActivity.userType);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                        startActivity(intent);
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    Log.e("ProfileFragment", e.toString());
                                 }
                             }
                         });
@@ -203,7 +203,7 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    public void setCircleCropImage(Context context, String url, ImageView imageView, final ProgressBar progressBar)
+    public void setCircleCropImage(Context context, Uri url, ImageView imageView, final ProgressBar progressBar)
     {
         Glide.with(context)
                 .load(url)
@@ -249,11 +249,5 @@ public class ProfileFragment extends Fragment {
             String date = day + "-" + (month+1) + "-" + year;
             birthdayText.setText(date);
         }
-    }
-
-    public static ProfileFragment getProfileFragment() {
-        if (profileFragment == null)
-            profileFragment = new ProfileFragment();
-        return profileFragment;
     }
 }

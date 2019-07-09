@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.example.com.prescriptminder.R;
-import android.example.com.prescriptminder.activities.MainActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -83,7 +82,7 @@ public class BluetoothConnectFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        MainActivity.navigation.setSelectedItemId(R.id.navigation_connect_device);
+//        MainActivity.navigation.setSelectedItemId(R.id.navigation_connect_device);
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_bluetooth_connect, container, false);
