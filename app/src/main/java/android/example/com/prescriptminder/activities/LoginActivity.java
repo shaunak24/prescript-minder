@@ -1,7 +1,11 @@
 package android.example.com.prescriptminder.activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.example.com.prescriptminder.R;
+import android.example.com.prescriptminder.fragments.ProfileDialogFragment;
+import android.example.com.prescriptminder.utils.Constants;
+import android.example.com.prescriptminder.utils.OkHttpUtils;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -18,11 +22,15 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.shobhitpuri.custombuttons.GoogleSignInButton;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.Objects;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
 import okhttp3.Response;
 
 public class LoginActivity extends AppCompatActivity {
@@ -30,9 +38,13 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int RC_SIGN_IN = 100;
 
-    private String idToken;
     private GoogleSignInClient googleSignInClient;
     private GoogleSignInButton googleSignInButton;
+    private JSONObject loginJson;
+    public static String userType;
+    private boolean isFilled;
+    private String status;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,15 +63,13 @@ public class LoginActivity extends AppCompatActivity {
             public void run() {
                 googleSignInButton.setVisibility(View.VISIBLE);
             }
-        }, 4000);
+        }, 3000);
 
         googleSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 signIn();
                 googleSignInButton.setEnabled(false);
-//                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-//                finish();
             }
         });
 
@@ -85,7 +95,8 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        updateUI(account);
+        if (account != null)
+            sendIdToken(account);
     }
 
     @Override
@@ -96,6 +107,13 @@ public class LoginActivity extends AppCompatActivity {
         if (requestCode == RC_SIGN_IN) {
             // The Task returned from this call is always completed, no need to attach
             // a listener.
+
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.setTitle("Loading");
+            progressDialog.setMessage("Please wait...");
+            progressDialog.show();
+
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
         }
@@ -110,7 +128,9 @@ public class LoginActivity extends AppCompatActivity {
     {
         if (account != null)
         {
+            dismissProgressDialog();
             Intent intent = new Intent(this, MainActivity.class);
+            intent.putExtra("userType", userType);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
@@ -122,61 +142,68 @@ public class LoginActivity extends AppCompatActivity {
     private void handleSignInResult(@NonNull Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            assert account != null;
-            idToken = account.getIdToken();
 
-            // TODO(developer): send ID Token to server and validate
-//            HttpClient httpClient = new DefaultHttpClient();
-//            HttpPost httpPost = new HttpPost("https://192.168.0.104:8000/user_info/verification");
-//
-//            try {
-//                List<NameValuePair> nameValuePairs = new ArrayList<>(1);
-//                nameValuePairs.add(new BasicNameValuePair("idToken", idToken));
-//                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-//
-//                HttpResponse response = httpClient.execute(httpPost);
-//                int statusCode = response.getStatusLine().getStatusCode();
-//                final String responseBody = EntityUtils.toString(response.getEntity());
-//                Log.i(TAG, "Signed in as: " + responseBody);
-//            } catch (ClientProtocolException e) {
-//                Log.e(TAG, "Error sending ID token to backend.", e);
-//            } catch (IOException e) {
-//                Log.e(TAG, "Error sending ID token to backend.", e);
-//            }
+            sendIdToken(account);
 
-            sendIdToken(idToken);
-
-            updateUI(account);
         } catch (ApiException e) {
             Log.w(TAG, "handleSignInResult:error", e);
             updateUI(null);
         }
     }
 
-    private void sendIdToken(final String idToken)
+    private void sendIdToken(final GoogleSignInAccount account)
     {
+        try
+        {
+            //TODO: Change url
+            final String url = Constants.BASE_URL + "user/verification/";
+            FormBody formBody = new FormBody.Builder().add("idToken", Objects.requireNonNull(account.getIdToken())).build();
+//            OkHttpClient okHttpClient = new OkHttpClient();
+//            Request request = new Request.Builder().url(url).post(formBody).build();
 
-        Log.e("ID Token", idToken);
+//            Call call = okHttpClient.newCall(request);
+            Call call = OkHttpUtils.getOkHttpUtils().sendHttpPostRequest(url, formBody);
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
 
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try
-                {
-                    final String url = "http://192.168.0.104:8000/user_info/verification/";
-                    OkHttpClient okHttpClient = new OkHttpClient();
-                    FormBody formBody = new FormBody.Builder().add("idToken", idToken).build();
-                    Request request = new Request.Builder().url(url).post(formBody).build();
-                    Response response = okHttpClient.newCall(request).execute();
-                    String serverMessage = Objects.requireNonNull(response.body()).string();
-                    Log.e("Message", serverMessage);
                 }
-                catch (Exception e)
-                {
-                    Log.e(TAG, e.toString());
+
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    try {
+                        loginJson = new JSONObject(Objects.requireNonNull(response.body()).string());
+                        status = loginJson.getString("status");
+                        userType = loginJson.getString("user_type");
+                        isFilled = loginJson.getBoolean("is_filled");
+                        if (status.equalsIgnoreCase("ok"))
+                        {
+                            if (isFilled)
+                                updateUI(account);
+                            else
+                            {
+                                dismissProgressDialog();
+                                ProfileDialogFragment profileDialogFragment = new ProfileDialogFragment();
+                                profileDialogFragment.setCancelable(false);
+                                profileDialogFragment.show(getSupportFragmentManager(), "User");
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        });
-        thread.start();
+            });
+        }
+        catch (Exception e)
+        {
+            Log.e("sendIdToken", e.toString());
+        }
     }
+
+    private void dismissProgressDialog()
+    {
+        if (progressDialog != null && progressDialog.isShowing())
+            progressDialog.dismiss();
+    }
+
 }

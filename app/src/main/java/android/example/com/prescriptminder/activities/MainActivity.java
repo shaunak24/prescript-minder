@@ -1,11 +1,16 @@
 package android.example.com.prescriptminder.activities;
 
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.example.com.prescriptminder.R;
 import android.example.com.prescriptminder.fragments.BluetoothConnectFragment;
 import android.example.com.prescriptminder.fragments.ProfileFragment;
 import android.example.com.prescriptminder.fragments.RecentScanFragment;
 import android.example.com.prescriptminder.fragments.RecordFragment;
 import android.example.com.prescriptminder.fragments.ScanFragment;
+import android.example.com.prescriptminder.utils.Constants;
+import android.example.com.prescriptminder.utils.OkHttpUtils;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -13,7 +18,21 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.Objects;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private final RecentScanFragment recentScanFragment = RecentScanFragment.getRecentScanFragment();
     private final RecordFragment recordFragment = RecordFragment.getRecordFragment();
     private final ScanFragment scanFragment = ScanFragment.getScanFragment();
+    private ProgressDialog progressDialog;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -37,8 +57,55 @@ public class MainActivity extends AppCompatActivity {
                         replaceFragment(bluetoothConnectFragment);
                     return true;
                 case R.id.navigation_profile:
-                    if (fragment != profileFragment)
-                        replaceFragment(profileFragment);
+                    progressDialog = new ProgressDialog(MainActivity.this);
+                    progressDialog.setTitle("Loading");
+                    progressDialog.setMessage("Please wait...");
+                    progressDialog.setCanceledOnTouchOutside(false);
+                    progressDialog.show();
+
+                    GoogleSignInAccount googleSignInAccount = GoogleSignIn.getLastSignedInAccount(MainActivity.this);
+                    final String email = Objects.requireNonNull(googleSignInAccount).getEmail();
+                    final String personName = googleSignInAccount.getGivenName() + " " + googleSignInAccount.getFamilyName();
+                    final String profilePicture = Objects.requireNonNull(googleSignInAccount.getPhotoUrl()).toString();
+
+//                    OkHttpClient okHttpClient = new OkHttpClient();
+//                    Request request = new Request.Builder().url(url).get().build();
+                    String url = Constants.BASE_URL + "user/get/" + email + "/";
+                    Call call = OkHttpUtils.getOkHttpUtils().sendHttpGetRequest(url);
+                    call.enqueue(new Callback() {
+                        @Override
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+
+                        }
+
+                        @Override
+                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            try
+                            {
+                                JSONObject jsonObject = new JSONObject(Objects.requireNonNull(response.body()).string());
+                                SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString("email", email);
+                                editor.putString("personName", personName);
+                                editor.putString("profilePicture", profilePicture);
+                                editor.putString("gender", jsonObject.getString("gender"));
+                                editor.putString("city", jsonObject.getString("city"));
+                                editor.putString("birthday", jsonObject.getString("birthday"));
+                                editor.apply();
+
+                                dismissProgressDialog();
+
+                                if (fragment != profileFragment)
+                                    replaceFragment(profileFragment);
+                            }
+                            catch (Exception e)
+                            {
+                                Log.e("onResponse", e.toString());
+                            }
+                        }
+                    });
+//                    if (fragment != profileFragment)
+//                        replaceFragment(profileFragment);
                     return true;
                 case R.id.navigation_recent_scan:
                     if (fragment != recentScanFragment)
@@ -61,13 +128,36 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        String userType = getIntent().getStringExtra("userType");
+
         navigation = findViewById(R.id.nav_view);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        Menu navigationMenu = navigation.getMenu();
+        MenuItem recordMenuItem = navigationMenu.findItem(R.id.navigation_record_audio);
+        MenuItem connectMenuItem = navigationMenu.findItem(R.id.navigation_connect_device);
+        if (userType.equalsIgnoreCase("doctor"))
+        {
+            recordMenuItem.setVisible(true);
+            connectMenuItem.setVisible(true);
+        }
+        else
+        {
+            recordMenuItem.setVisible(false);
+            connectMenuItem.setVisible(false);
+        }
 
         fragmentManager = getSupportFragmentManager();
         fragment = recentScanFragment;
         replaceFragment(fragment);
     }
+
+    private void dismissProgressDialog()
+    {
+        if (progressDialog != null && progressDialog.isShowing())
+            progressDialog.dismiss();
+    }
+
 
     private void replaceFragment(Fragment fragment)
     {
