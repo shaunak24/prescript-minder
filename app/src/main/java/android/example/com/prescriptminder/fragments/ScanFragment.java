@@ -1,8 +1,6 @@
 package android.example.com.prescriptminder.fragments;
 
 
-import android.example.com.prescriptminder.R;
-import android.example.com.prescriptminder.activities.MainActivity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -33,7 +31,7 @@ public class ScanFragment extends Fragment implements ZXingScannerView.ResultHan
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        MainActivity.navigation.setSelectedItemId(R.id.navigation_scan_qr_code);
+//        MainActivity.navigation.setSelectedItemId(R.id.navigation_scan_qr_code);
 
         // Inflate the layout for this fragment
         scannerView = new ZXingScannerView(getContext());

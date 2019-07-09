@@ -2,7 +2,6 @@ package android.example.com.prescriptminder.fragments;
 
 
 import android.example.com.prescriptminder.R;
-import android.example.com.prescriptminder.activities.MainActivity;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
@@ -51,7 +50,7 @@ public class RecordFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        MainActivity.navigation.setSelectedItemId(R.id.navigation_record_audio);
+//        MainActivity.navigation.setSelectedItemId(R.id.navigation_record_audio);
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_record, container, false);

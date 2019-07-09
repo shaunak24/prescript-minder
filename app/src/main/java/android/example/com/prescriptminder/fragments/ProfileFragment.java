@@ -6,7 +6,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.example.com.prescriptminder.R;
-import android.example.com.prescriptminder.activities.MainActivity;
 import android.example.com.prescriptminder.utils.Constants;
 import android.example.com.prescriptminder.utils.OkHttpUtils;
 import android.graphics.drawable.Drawable;
@@ -69,7 +68,7 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        MainActivity.navigation.setSelectedItemId(R.id.navigation_profile);
+//        MainActivity.navigation.setSelectedItemId(R.id.navigation_profile);
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_profile, container, false);
