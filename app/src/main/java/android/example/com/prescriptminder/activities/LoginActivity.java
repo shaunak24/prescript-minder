@@ -18,6 +18,19 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.shobhitpuri.custombuttons.GoogleSignInButton;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import okhttp3.FormBody;
@@ -58,8 +71,8 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 signIn();
                 googleSignInButton.setEnabled(false);
-//                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-//                finish();
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                finish();
             }
         });
 
@@ -125,24 +138,24 @@ public class LoginActivity extends AppCompatActivity {
             assert account != null;
             idToken = account.getIdToken();
 
-            // TODO(developer): send ID Token to server and validate
-//            HttpClient httpClient = new DefaultHttpClient();
-//            HttpPost httpPost = new HttpPost("https://192.168.0.104:8000/user_info/verification");
-//
-//            try {
-//                List<NameValuePair> nameValuePairs = new ArrayList<>(1);
-//                nameValuePairs.add(new BasicNameValuePair("idToken", idToken));
-//                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-//
-//                HttpResponse response = httpClient.execute(httpPost);
-//                int statusCode = response.getStatusLine().getStatusCode();
-//                final String responseBody = EntityUtils.toString(response.getEntity());
-//                Log.i(TAG, "Signed in as: " + responseBody);
-//            } catch (ClientProtocolException e) {
-//                Log.e(TAG, "Error sending ID token to backend.", e);
-//            } catch (IOException e) {
-//                Log.e(TAG, "Error sending ID token to backend.", e);
-//            }
+             //TODO(developer): send ID Token to server and validate
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost httpPost = new HttpPost("https://192.168.0.104:8000/user_info/verification");
+
+            try {
+                List<NameValuePair> nameValuePairs = new ArrayList<>(1);
+                nameValuePairs.add(new BasicNameValuePair("idToken", idToken));
+                httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+                HttpResponse response = httpClient.execute(httpPost);
+                int statusCode = response.getStatusLine().getStatusCode();
+                final String responseBody = EntityUtils.toString(response.getEntity());
+                Log.i(TAG, "Signed in as: " + responseBody);
+            } catch (ClientProtocolException e) {
+                Log.e(TAG, "Error sending ID token to backend.", e);
+            } catch (IOException e) {
+                Log.e(TAG, "Error sending ID token to backend.", e);
+            }
 
             sendIdToken(idToken);
 

@@ -28,6 +28,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -56,7 +57,9 @@ public class BluetoothConnectFragment extends Fragment {
     private ArrayList<String> devices;
     private ArrayList<BluetoothDevice> btDevices;
     private TextView available_text;
-    private TextView connectivity_status;
+    private static TextView connectivity_status;
+    private EditText send_text;
+    private Button send_btn;
     private View separator;
     private static Communication communication;
 
@@ -92,13 +95,14 @@ public class BluetoothConnectFragment extends Fragment {
         Button bluetooth_discoverable = view.findViewById(R.id.bluetooth_discoverable);
         devices_list = view.findViewById(R.id.devices_list);
         bluetooth_switch = view.findViewById(R.id.bluetooth_toggle);
+        send_text = view.findViewById(R.id.send_text);
+        send_btn = view.findViewById(R.id.send_btn);
         Button bluetooth_scan = view.findViewById(R.id.bluetooth_scan);
         devices = new ArrayList<>();
         btDevices = new ArrayList<>();
         available_text = view.findViewById(R.id.available_text);
         separator = view.findViewById(R.id.separator);
         connectivity_status = view.findViewById(R.id.connectivity_status);
-//        Button bluetooth_send_button = view.findViewById(R.id.bluetooth_send_button);
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         arrayAdapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_list_item_1, devices);
@@ -114,12 +118,19 @@ public class BluetoothConnectFragment extends Fragment {
             bluetooth_switch.setChecked(false);
         }
 
+        send_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String text = send_text.getText().toString().trim();
+                sendUrl(text);
+            }
+        });
 
         bluetooth_discoverable.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!bluetoothAdapter.isDiscovering()) {
-                    Intent discoverable = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);               //Make the device discoverable
+                    Intent discoverable = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
                     startActivityForResult(discoverable, REQUEST_DISCOVERABLE);
                 }
             }
@@ -165,15 +176,6 @@ public class BluetoothConnectFragment extends Fragment {
             }
         });
 
-//        bluetooth_send_button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                String url = "Divyesh";//RecordActivity.PRINT_URL;
-//                communication.write(url.getBytes());
-//                Log.e("BluetoothActivity", "Url sent : " + url);
-//            }
-//        });
-
         checkCoarseLocationPermission();
 
     }
@@ -207,9 +209,19 @@ public class BluetoothConnectFragment extends Fragment {
         }
     });
 
+    public static Boolean checkConnectivityStatus() {
+        Log.e("Bluetooth", connectivity_status.getText().toString());
+        if(connectivity_status.getText().toString().equals("Connected"))
+            return true;
+        else
+            return false;
+    }
+
     public static void sendUrl(String url) {
-        communication.write(url.getBytes());
-        Log.e("BluetoothActivity", "URL sent : " + url);
+        if(!url.isEmpty() && checkConnectivityStatus()) {
+            communication.write(url.getBytes());
+            Log.e("BluetoothActivity", "URL sent : " + url);
+        }
     }
 
     @Override

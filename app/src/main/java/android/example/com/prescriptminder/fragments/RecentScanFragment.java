@@ -7,9 +7,16 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.io.IOException;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -17,6 +24,7 @@ import android.view.ViewGroup;
 public class RecentScanFragment extends Fragment {
 
     private static RecentScanFragment recentScanFragment;
+    private String JSON;
 
     public RecentScanFragment() {
         // Required empty public constructor
@@ -33,8 +41,31 @@ public class RecentScanFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    getMedicineInfo();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
+    }
+
+    private void getMedicineInfo() throws IOException {
+        String url = "https://earthquake.usgs.gov/fdsnws/event/1/application.json";
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().url(url).get().build();
+        Response response = client.newCall(request).execute();
+        JSON = response.body().string();
+
+        if(!response.isSuccessful())
+            throw new IOException("Response code : " + response);
+        Log.e("Response", JSON);
     }
 
     public static RecentScanFragment getRecentScanFragment() {

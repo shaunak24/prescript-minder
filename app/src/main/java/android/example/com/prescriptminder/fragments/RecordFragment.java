@@ -41,6 +41,7 @@ public class RecordFragment extends Fragment {
     private String outputFile;
     private MediaRecorder mediaRecorder;
     private String fileName;
+    private final String DIRECTORY_NAME = "/PrescriptMinder";
     private File file;
 
     public RecordFragment() {
@@ -67,6 +68,7 @@ public class RecordFragment extends Fragment {
 //        playButton = view.findViewById(R.id.play_button);
 //        upload = view.findViewById(R.id.upload_audio);
 
+        check_directory();
         mediaRecorder_setup();
 
 //        startButton.setOnClickListener(new View.OnClickListener() {
@@ -137,6 +139,12 @@ public class RecordFragment extends Fragment {
 //                thread.start();
 //            }
 //        });
+    }
+
+    private void check_directory() {
+        String path = Environment.getExternalStorageDirectory().getPath();
+        File directory = new File(path + DIRECTORY_NAME);
+        directory.mkdir();
     }
 
     private void mediaRecorder_setup() {
