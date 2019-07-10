@@ -37,7 +37,7 @@ import okhttp3.Response;
 public class MainActivity extends AppCompatActivity {
 
     private FragmentManager fragmentManager;
-    public static BottomNavigationView navigation;
+    private BottomNavigationView navigation;
     public static Fragment fragment;
     private final BluetoothConnectFragment bluetoothConnectFragment = BluetoothConnectFragment.getBluetoothConnectFragment();
     private final ProfileFragment profileFragment = ProfileFragment.getProfileFragment();

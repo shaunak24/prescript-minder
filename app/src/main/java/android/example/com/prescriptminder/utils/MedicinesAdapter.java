@@ -32,19 +32,27 @@ public class MedicinesAdapter extends RecyclerView.Adapter<MedicinesAdapter.Medi
     @Override
     public void onBindViewHolder(@NonNull MedicinesViewHolder medicinesViewHolder, int i) {
 
+        Medicines medicines = medicines_list.get(i);
+        medicinesViewHolder.medicine_name.setText(medicines.getName());
+        medicinesViewHolder.medicine_note.setText(medicines.getNote());
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return medicines_list.size();
     }
 
     class MedicinesViewHolder extends RecyclerView.ViewHolder {
 
         TextView medicine_name, medicine_note;
+        View timeline;
 
         public MedicinesViewHolder(@NonNull View itemView) {
+
             super(itemView);
+            medicine_name = itemView.findViewById(R.id.medicine_name);
+            medicine_note = itemView.findViewById(R.id.medicine_note);
+            timeline = itemView.findViewById(R.id.timeline);
         }
     }
 }

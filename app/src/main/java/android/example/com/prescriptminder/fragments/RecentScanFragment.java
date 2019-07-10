@@ -2,16 +2,21 @@ package android.example.com.prescriptminder.fragments;
 
 
 import android.example.com.prescriptminder.R;
+import android.example.com.prescriptminder.utils.Medicines;
+import android.example.com.prescriptminder.utils.MedicinesAdapter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -24,6 +29,9 @@ public class RecentScanFragment extends Fragment {
 
     private static RecentScanFragment recentScanFragment;
     private String JSON;
+    private RecyclerView recyclerView;
+    private MedicinesAdapter adapter;
+    private ArrayList<Medicines> medicinesArrayList;
 
     public RecentScanFragment() {
         // Required empty public constructor
@@ -41,6 +49,21 @@ public class RecentScanFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
+
+        medicinesArrayList = new ArrayList<>();
+        recyclerView = view.findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        medicinesArrayList.add(new Medicines("Shaunak", "No note", "101010"));
+        medicinesArrayList.add(new Medicines("Sahil", "No note", "111010"));
+        medicinesArrayList.add(new Medicines("Divyesh", "No note", "111110"));
+        medicinesArrayList.add(new Medicines("Mitesh", "No note", "111111"));
+        medicinesArrayList.add(new Medicines("Aashay", "No note", "101000"));
+        medicinesArrayList.add(new Medicines("Upasana", "No note", "100000"));
+
+        adapter = new MedicinesAdapter(getContext(), medicinesArrayList);
+        recyclerView.setAdapter(adapter);
 
         Thread thread = new Thread(new Runnable() {
             @Override
