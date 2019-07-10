@@ -15,6 +15,7 @@ public class MedicinesAdapter extends RecyclerView.Adapter<MedicinesAdapter.Medi
 
     private Context mContext;
     private ArrayList<Medicines> medicines_list;
+    private ArrayList<View> timeline_array;
 
     public MedicinesAdapter(Context mContext, ArrayList<Medicines> medicines_list) {
         this.mContext = mContext;
@@ -35,6 +36,28 @@ public class MedicinesAdapter extends RecyclerView.Adapter<MedicinesAdapter.Medi
         Medicines medicines = medicines_list.get(i);
         medicinesViewHolder.medicine_name.setText(medicines.getName());
         medicinesViewHolder.medicine_note.setText(medicines.getNote());
+        setTimeline(medicinesViewHolder.timeline, medicines.getDetails());
+    }
+
+    private void setTimeline(View timeline, String details) {
+
+        char[] detail = details.toCharArray();
+        getChildrenViews(timeline);
+        for(int i = 0; i < timeline_array.size(); i++) {
+            if(detail[i] == '0')
+                timeline_array.get(i).setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void getChildrenViews(View timeline) {
+
+        timeline_array = new ArrayList<>();
+        timeline_array.add(timeline.findViewById(R.id.before_breakfast));
+        timeline_array.add(timeline.findViewById(R.id.after_breakfast));
+        timeline_array.add(timeline.findViewById(R.id.before_lunch));
+        timeline_array.add(timeline.findViewById(R.id.after_lunch));
+        timeline_array.add(timeline.findViewById(R.id.before_dinner));
+        timeline_array.add(timeline.findViewById(R.id.after_dinner));
     }
 
     @Override
