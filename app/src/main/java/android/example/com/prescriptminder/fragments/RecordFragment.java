@@ -2,6 +2,7 @@ package android.example.com.prescriptminder.fragments;
 
 
 import android.example.com.prescriptminder.R;
+import android.example.com.prescriptminder.helperclasses.MedicineAdapter;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
@@ -9,14 +10,18 @@ import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -41,6 +46,8 @@ public class RecordFragment extends Fragment {
     private MediaRecorder mediaRecorder;
     private String fileName;
     private File file;
+    public static RecyclerView recyclerView;
+    public static MedicineAdapter medicineAdapter;
 
     public RecordFragment() {
         // Required empty public constructor
@@ -58,6 +65,22 @@ public class RecordFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        recyclerView = view.findViewById(R.id.medicine_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        recyclerView.setHasFixedSize(false);
+        medicineAdapter = new MedicineAdapter(view.getContext());
+
+        final Button addMedicineButton = view.findViewById(R.id.save_prescription_button);
+        addMedicineButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AddPrescriptionFragment addPrescriptionFragment = new AddPrescriptionFragment();
+                addPrescriptionFragment.setCancelable(false);
+                addPrescriptionFragment.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "Prescription");
+            }
+        });
+
         chronometer = view.findViewById(R.id.chronometer);
 //        startButton = view.findViewById(R.id.record_button);
 //        pauseButton = view.findViewById(R.id.pause_button);
