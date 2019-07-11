@@ -2,19 +2,21 @@ package android.example.com.prescriptminder.fragments;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.example.com.prescriptminder.R;
-import android.example.com.prescriptminder.utils.Constants;
+import android.example.com.prescriptminder.activities.MainActivity;
 import android.example.com.prescriptminder.utils.Medicines;
 import android.example.com.prescriptminder.utils.MedicinesAdapter;
-import android.example.com.prescriptminder.utils.OkHttpUtils;
 import android.example.com.prescriptminder.utils.QRCodeUtil;
-import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -38,8 +40,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -87,51 +87,20 @@ public class RecentScanFragment extends Fragment {
         date = view.findViewById(R.id.date);
         time = view.findViewById(R.id.time);
         qrcode = view.findViewById(R.id.qrcode);
-        play = view.findViewById(R.id.play_audio);
         medicinesArrayList = new ArrayList<>();
-
-        play.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        SharedPreferences sharedPref = Objects.requireNonNull(getActivity()).getPreferences(Context.MODE_PRIVATE);
-                        String email = sharedPref.getString("email", "null");
-                        RequestBody requestBody = new MultipartBody.Builder().addFormDataPart("mail", email).build();
-                        Call call = OkHttpUtils.sendHttpPostRequest("http://10.194.168.231:8000/prescript/view/37/", requestBody);
-                        call.enqueue(new Callback() {
-                            @Override
-                            public void onFailure(Call call, IOException e) {
-                                e.printStackTrace();
-                            }
-
-                            @Override
-                            public void onResponse(Call call, Response response) throws IOException {
-                                File file = convertToFile(response.body().byteStream());
-                                Log.e("Received File", file.getPath());
-                                String path = Environment.getExternalStorageDirectory() + "/" + file.getName();
-                                MediaPlayer mediaPlayer = new MediaPlayer();
-                                mediaPlayer.setDataSource(path);
-                                mediaPlayer.prepare();
-                                mediaPlayer.start();
-                            }
-                        });
-                    }
-                });
-                thread.start();
-            }
-        });
 
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     getMedicineInfo();
+                    //screenScanning();
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
                     e.printStackTrace();
+                } catch (NullPointerException e) {
+                    MainActivity.replaceFragment(BluetoothConnectFragment.getBluetoothConnectFragment());
                 }
             }
         });
@@ -144,7 +113,35 @@ public class RecentScanFragment extends Fragment {
         recyclerView.setAdapter(adapter);
     }
 
-    private File convertToFile(InputStream byteStream) throws IOException{
+    private void screenScanning() {
+        try {
+            Intent intent = new Intent("com.google.zxing.client.android.SCAN");
+            intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
+            startActivityForResult(intent, 0);
+
+        } catch (Exception e) {
+
+            Uri marketUri = Uri.parse("market://details?id=com.google.zxing.client.android");
+            Intent marketIntent = new Intent(Intent.ACTION_VIEW, marketUri);
+            startActivity(marketIntent);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 0) {
+            if (resultCode == getActivity().RESULT_OK) {
+                String contents = data.getStringExtra("SCAN_RESULT");
+                Log.e("contents", contents);
+            }
+            if(resultCode == getActivity().RESULT_CANCELED){
+                //handle cancel
+            }
+        }
+    }
+
+    private File convertToFile(InputStream byteStream) throws IOException {
         InputStream inputStream = byteStream;
 
         File receivedFile = new File(Environment.getExternalStorageDirectory(), "Hi");
@@ -163,8 +160,18 @@ public class RecentScanFragment extends Fragment {
         return receivedFile;
     }
 
-    private void getMedicineInfo() throws IOException, JSONException {
-        String url = Constants.BASE_URL + "prescript/view/1/";
+    private static void showNotification(String name, String time) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getRecentScanFragment().getActivity())
+                .setSmallIcon(R.drawable.logo)
+                .setContentTitle("Reminder to take medicines")
+                .setContentText("Medicine " + name + " should be taken at " + time)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getRecentScanFragment().getActivity());
+        notificationManager.notify(1, builder.build());
+    }
+
+    private void getMedicineInfo() throws IOException, JSONException, NullPointerException {
+        String url = "http://" + RecordFragment.PRINT_URL;
         Log.e("URL", url);
         SharedPreferences sharedPref = Objects.requireNonNull(getActivity()).getPreferences(Context.MODE_PRIVATE);
         String email = sharedPref.getString("email", "null");
@@ -181,7 +188,9 @@ public class RecentScanFragment extends Fragment {
             @Override
             public void run() {
                 try {
+                    Log.e("check", "Near parse JSON");
                     parseJSON(JSON);
+                    Log.e("check", "After parse JSON");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -197,8 +206,10 @@ public class RecentScanFragment extends Fragment {
             JSONArray medicines = jsonObject.getJSONArray("medicine");
             for (int i = 0; i < medicines.length(); i++) {
                 JSONObject object = medicines.getJSONObject(i);
+                Log.e("check", object.getString("name"));
                 medicinesArrayList.add(new Medicines(object.getString("name"), object.getString("note"),
                         object.getString("schedule")));
+                Log.e("check", medicinesArrayList.get(i).getName());
             }
             adapter.notifyDataSetChanged();
         } else {
@@ -212,7 +223,7 @@ public class RecentScanFragment extends Fragment {
         pres_id.setText(jsonObject.getString("id"));
         date.setText(jsonObject.getString("date"));
         time.setText(jsonObject.getString("time"));
-        qrcode.setImageBitmap(QRCodeUtil.encodeAsBitmap(jsonObject.getString("audio_name"), 100, 100));
+        qrcode.setImageBitmap(QRCodeUtil.encodeAsBitmap(RecordFragment.PRINT_URL, 100, 100));
     }
 
     public static RecentScanFragment getRecentScanFragment() {

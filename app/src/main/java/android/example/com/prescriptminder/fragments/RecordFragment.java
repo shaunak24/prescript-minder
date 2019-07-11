@@ -4,6 +4,7 @@ package android.example.com.prescriptminder.fragments;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.example.com.prescriptminder.R;
+import android.example.com.prescriptminder.activities.MainActivity;
 import android.example.com.prescriptminder.helperclasses.Medicine;
 import android.example.com.prescriptminder.helperclasses.MedicineAdapter;
 import android.example.com.prescriptminder.utils.Constants;
@@ -28,7 +29,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,13 +48,13 @@ import okhttp3.Response;
 public class RecordFragment extends Fragment {
 
     private static RecordFragment recordFragment;
-    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     public static final MediaType WAV = MediaType.parse("audio/x-wav");
     public static String PRINT_URL;
     private ImageView startButton;
     private ImageView pauseButton;
     private ImageView printQR;
     private ImageView upload;
+    private ImageView playButton;
     private Boolean startRecording = true;
     private Boolean pauseRecording = true;
     private Chronometer chronometer;
@@ -64,9 +64,9 @@ public class RecordFragment extends Fragment {
     private String fileName;
     private File file;
     public static RecyclerView recyclerView;
-    private Button playButton;
     public static MedicineAdapter medicineAdapter;
     private String pres_id;
+    private Call call;
 
     public RecordFragment() {
         // Required empty public constructor
@@ -162,29 +162,12 @@ public class RecordFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 final ArrayList<Medicine> arrayList = MedicineAdapter.getMedicineArrayList();
-                final File file = new File(outputFile);
+                file = new File(outputFile);
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
                             sendMedicineData(arrayList);
-                            MultipartBody multipartBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                                    .addFormDataPart("file", "hi", RequestBody.create(WAV, file))
-                                    .build();
-                            Call call = OkHttpUtils.sendHttpPostRequest(Constants.BASE_URL + "prescript/storeaudio/" + pres_id, multipartBody);
-                            call.enqueue(new Callback() {
-                                @Override
-                                public void onFailure(Call call, IOException e) {
-                                    e.printStackTrace();
-                                }
-
-                                @Override
-                                public void onResponse(Call call, Response response) throws IOException {
-                                    PRINT_URL = response.body().string();
-                                    Log.e("PRINT_URL", PRINT_URL);
-                                }
-                            });
-
                         } catch (NullPointerException e) {
                             e.printStackTrace();
                         } catch (IllegalStateException e) {
@@ -201,8 +184,12 @@ public class RecordFragment extends Fragment {
 
     private void sendMedicineData(ArrayList<Medicine> arrayList) throws JSONException {
         String url = Constants.BASE_URL + "prescript/store/";
-        RequestBody requestBody = RequestBody.create(JSON, getJSON(arrayList).toString());
-        Call call = OkHttpUtils.sendHttpPostRequest(url, requestBody);
+        final SharedPreferences sharedPref = Objects.requireNonNull(getActivity()).getPreferences(Context.MODE_PRIVATE);
+        String email = sharedPref.getString("email", "null");
+        String data = "shaunak.12.24@gmail.com," + email + ",";
+        data += getRemainingData(arrayList);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("text/plain"), data);
+        call = OkHttpUtils.sendHttpPostRequest(url, requestBody);
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -214,28 +201,34 @@ public class RecordFragment extends Fragment {
                 PRINT_URL = response.body().string();
                 String[] split = PRINT_URL.split("/");
                 pres_id = split[split.length - 1];
-                Log.e("Medicine response", pres_id);
+                MultipartBody multipartBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                        .addFormDataPart("file", "hi", RequestBody.create(WAV, file))
+                        .build();
+                call = OkHttpUtils.sendHttpPostRequest(Constants.BASE_URL + "prescript/storeaudio/" + pres_id + "/", multipartBody);
+                call.enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        Log.e("Audio upload response", response.body().string());
+                        MainActivity.replaceFragment(RecentScanFragment.getRecentScanFragment());
+                    }
+                });
             }
         });
     }
 
-    private JSONObject getJSON(ArrayList<Medicine> list) throws JSONException {
-        JSONObject jsonObject = new JSONObject();
-        int count = 0;
+    private String getRemainingData(ArrayList<Medicine> list) throws JSONException {
+        String remaining = "";
         for (Medicine m : list) {
-            JSONObject json = new JSONObject();
-            json.put("name", m.getMedicineName());
-            json.put("note", m.getNote());
-            json.put("schedule", m.getDetails());
-            jsonObject.put(String.valueOf(count), json);
-            count++;
+            remaining += m.getMedicineName() + ",";
+            remaining += m.getNote() + ",";
+            remaining += m.getDetails() + ",";
         }
-        SharedPreferences sharedPref = Objects.requireNonNull(getActivity()).getPreferences(Context.MODE_PRIVATE);
-        String email = sharedPref.getString("email", "null");
-        jsonObject.put("patient_mail", "shaunak.12.24@gmail.com");
-        jsonObject.put("doctor_mail", email);
-        Log.e("JSONObject", jsonObject.toString());
-        return jsonObject;
+        return remaining;
     }
 
     private void mediaRecorder_setup() {
@@ -260,7 +253,7 @@ public class RecordFragment extends Fragment {
             startRecordingService();
 
         } else {
-            startButton.setImageResource(R.drawable.ic_mic);
+            startButton.setImageResource(R.drawable.ic_microphone_2);
             chronometer.stop();
             chronometer.setBase(SystemClock.elapsedRealtime());
             timeWhenPaused = 0;

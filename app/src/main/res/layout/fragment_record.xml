@@ -40,11 +40,13 @@
             app:renderRange="both"
             app:renderType="fade" />
 
-        <Button
+        <ImageView
             android:id="@+id/play_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:src="@drawable/ic_play"
+            android:background="@drawable/button_background"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginBottom="36dp"
             android:text="play"
             app:layout_constraintBottom_toTopOf="@+id/chronometer2"
             app:layout_constraintEnd_toEndOf="@+id/chronometer2"
