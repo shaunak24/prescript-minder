@@ -134,7 +134,6 @@ public class LoginActivity extends AppCompatActivity {
     private void handleSignInResult(@NonNull Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-
             sendIdToken(account);
 
         } catch (ApiException e) {

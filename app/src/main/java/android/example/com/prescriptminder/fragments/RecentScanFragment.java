@@ -7,10 +7,11 @@ import android.example.com.prescriptminder.R;
 import android.example.com.prescriptminder.utils.Constants;
 import android.example.com.prescriptminder.utils.Medicines;
 import android.example.com.prescriptminder.utils.MedicinesAdapter;
-import android.example.com.prescriptminder.utils.MyHttpRequest;
+import android.example.com.prescriptminder.utils.OkHttpUtils;
 import android.example.com.prescriptminder.utils.QRCodeUtil;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -30,10 +31,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -90,16 +96,27 @@ public class RecentScanFragment extends Fragment {
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        try {
-                            File file = MyHttpRequest.downloadAudio("http://10.194.168.231:8000/prescript/view/1/");//RecordFragment.PRINT_URL);
-                            MediaPlayer mediaPlayer = new MediaPlayer();
-                            mediaPlayer.setDataSource(file.getPath());
-                            mediaPlayer.prepare();
-                            mediaPlayer.start();
-                            mediaPlayer.release();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        SharedPreferences sharedPref = Objects.requireNonNull(getActivity()).getPreferences(Context.MODE_PRIVATE);
+                        String email = sharedPref.getString("email", "null");
+                        RequestBody requestBody = new MultipartBody.Builder().addFormDataPart("mail", email).build();
+                        Call call = OkHttpUtils.sendHttpPostRequest("http://10.194.168.231:8000/prescript/view/37/", requestBody);
+                        call.enqueue(new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                e.printStackTrace();
+                            }
+
+                            @Override
+                            public void onResponse(Call call, Response response) throws IOException {
+                                File file = convertToFile(response.body().byteStream());
+                                Log.e("Received File", file.getPath());
+                                String path = Environment.getExternalStorageDirectory() + "/" + file.getName();
+                                MediaPlayer mediaPlayer = new MediaPlayer();
+                                mediaPlayer.setDataSource(path);
+                                mediaPlayer.prepare();
+                                mediaPlayer.start();
+                            }
+                        });
                     }
                 });
                 thread.start();
@@ -127,6 +144,25 @@ public class RecentScanFragment extends Fragment {
         recyclerView.setAdapter(adapter);
     }
 
+    private File convertToFile(InputStream byteStream) throws IOException{
+        InputStream inputStream = byteStream;
+
+        File receivedFile = new File(Environment.getExternalStorageDirectory(), "Hi");
+        OutputStream outputStream = new FileOutputStream(receivedFile);
+        try {
+            byte[] buffer = new byte[4 * 1024];
+            int read;
+
+            while ((read = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, read);
+            }
+            outputStream.flush();
+        } finally {
+            outputStream.close();
+        }
+        return receivedFile;
+    }
+
     private void getMedicineInfo() throws IOException, JSONException {
         String url = Constants.BASE_URL + "prescript/view/1/";
         Log.e("URL", url);
@@ -138,7 +174,7 @@ public class RecentScanFragment extends Fragment {
         Response response = client.newCall(request).execute();
         JSON = response.body().string();
 
-        if(!response.isSuccessful())
+        if (!response.isSuccessful())
             throw new IOException("Response code : " + response);
         Log.e("Response", JSON);
         getActivity().runOnUiThread(new Runnable() {
@@ -156,17 +192,16 @@ public class RecentScanFragment extends Fragment {
     private void parseJSON(String json) throws JSONException {
 
         JSONObject jsonObject = new JSONObject(json);
-        if(jsonObject.getString("status").equals("ok")) {
+        if (jsonObject.getString("status").equals("ok")) {
             setInitialDetails(jsonObject);
             JSONArray medicines = jsonObject.getJSONArray("medicine");
-            for(int i = 0; i < medicines.length(); i++) {
+            for (int i = 0; i < medicines.length(); i++) {
                 JSONObject object = medicines.getJSONObject(i);
                 medicinesArrayList.add(new Medicines(object.getString("name"), object.getString("note"),
                         object.getString("schedule")));
             }
             adapter.notifyDataSetChanged();
-        }
-        else {
+        } else {
             showToast(jsonObject.getString("status"));
         }
     }

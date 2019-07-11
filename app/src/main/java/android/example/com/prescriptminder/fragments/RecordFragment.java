@@ -7,6 +7,7 @@ import android.example.com.prescriptminder.R;
 import android.example.com.prescriptminder.helperclasses.Medicine;
 import android.example.com.prescriptminder.helperclasses.MedicineAdapter;
 import android.example.com.prescriptminder.utils.Constants;
+import android.example.com.prescriptminder.utils.OkHttpUtils;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
@@ -26,15 +27,20 @@ import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -42,15 +48,13 @@ import okhttp3.RequestBody;
 public class RecordFragment extends Fragment {
 
     private static RecordFragment recordFragment;
-
+    public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     public static final MediaType WAV = MediaType.parse("audio/x-wav");
     public static String PRINT_URL;
     private ImageView startButton;
     private ImageView pauseButton;
     private ImageView printQR;
     private ImageView upload;
-    //private TextView recordPrompt;
-    private int recordPromptCount = 0;
     private Boolean startRecording = true;
     private Boolean pauseRecording = true;
     private Chronometer chronometer;
@@ -62,7 +66,7 @@ public class RecordFragment extends Fragment {
     public static RecyclerView recyclerView;
     private Button playButton;
     public static MedicineAdapter medicineAdapter;
-    private ArrayList<Medicine> arrayList;
+    private String pres_id;
 
     public RecordFragment() {
         // Required empty public constructor
@@ -85,7 +89,6 @@ public class RecordFragment extends Fragment {
         playButton = view.findViewById(R.id.play_button);
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
         recyclerView.setHasFixedSize(false);
-        arrayList = new ArrayList<>();
         medicineAdapter = new MedicineAdapter(view.getContext());
         recyclerView.setAdapter(medicineAdapter);
 
@@ -103,8 +106,6 @@ public class RecordFragment extends Fragment {
         startButton = view.findViewById(R.id.record_button);
         pauseButton = view.findViewById(R.id.pause_button);
         printQR = view.findViewById(R.id.print_QR_button);
-        //recordPrompt = view.findViewById(R.id.recording_status);
-        //playButton = view.findViewById(R.id.play_button);
         upload = view.findViewById(R.id.upload_audio);
 
         mediaRecorder_setup();
@@ -160,20 +161,35 @@ public class RecordFragment extends Fragment {
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                file = new File(outputFile);
+                final ArrayList<Medicine> arrayList = MedicineAdapter.getMedicineArrayList();
+                final File file = new File(outputFile);
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            SharedPreferences sharedPref = Objects.requireNonNull(getActivity()).getPreferences(Context.MODE_PRIVATE);
-                            String email = sharedPref.getString("email", "null");
-                            uploadAudio(file, "shaunak.12.24@gmail.com", email);
-                            Log.e("RecordActivity", PRINT_URL);
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                            sendMedicineData(arrayList);
+                            MultipartBody multipartBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                                    .addFormDataPart("file", "hi", RequestBody.create(WAV, file))
+                                    .build();
+                            Call call = OkHttpUtils.sendHttpPostRequest(Constants.BASE_URL + "prescript/storeaudio/" + pres_id, multipartBody);
+                            call.enqueue(new Callback() {
+                                @Override
+                                public void onFailure(Call call, IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                                @Override
+                                public void onResponse(Call call, Response response) throws IOException {
+                                    PRINT_URL = response.body().string();
+                                    Log.e("PRINT_URL", PRINT_URL);
+                                }
+                            });
+
                         } catch (NullPointerException e) {
                             e.printStackTrace();
                         } catch (IllegalStateException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
@@ -183,12 +199,51 @@ public class RecordFragment extends Fragment {
         });
     }
 
+    private void sendMedicineData(ArrayList<Medicine> arrayList) throws JSONException {
+        String url = Constants.BASE_URL + "prescript/store/";
+        RequestBody requestBody = RequestBody.create(JSON, getJSON(arrayList).toString());
+        Call call = OkHttpUtils.sendHttpPostRequest(url, requestBody);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                PRINT_URL = response.body().string();
+                String[] split = PRINT_URL.split("/");
+                pres_id = split[split.length - 1];
+                Log.e("Medicine response", pres_id);
+            }
+        });
+    }
+
+    private JSONObject getJSON(ArrayList<Medicine> list) throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        int count = 0;
+        for (Medicine m : list) {
+            JSONObject json = new JSONObject();
+            json.put("name", m.getMedicineName());
+            json.put("note", m.getNote());
+            json.put("schedule", m.getDetails());
+            jsonObject.put(String.valueOf(count), json);
+            count++;
+        }
+        SharedPreferences sharedPref = Objects.requireNonNull(getActivity()).getPreferences(Context.MODE_PRIVATE);
+        String email = sharedPref.getString("email", "null");
+        jsonObject.put("patient_mail", "shaunak.12.24@gmail.com");
+        jsonObject.put("doctor_mail", email);
+        Log.e("JSONObject", jsonObject.toString());
+        return jsonObject;
+    }
+
     private void mediaRecorder_setup() {
         mediaRecorder = new MediaRecorder();
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         mediaRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
-        fileName = "audio1";//DateFormat.getDateTimeInstance().format(new Date());
+        fileName = "audio1";
         outputFile = Environment.getExternalStorageDirectory() + "/" + fileName;
         mediaRecorder.setOutputFile(outputFile);
     }
@@ -201,32 +256,14 @@ public class RecordFragment extends Fragment {
 
             chronometer.setBase(SystemClock.elapsedRealtime());
             chronometer.start();
-//            chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
-//                @Override
-//                public void onChronometerTick(Chronometer chronometer) {
-//                    if(recordPromptCount == 0) {
-//                        recordPrompt.setText("Recording" + ".");
-//                    }
-//                    else if(recordPromptCount == 1) {
-//                        recordPrompt.setText("Recording" + "..");
-//                    }
-//                    else if(recordPromptCount == 2) {
-//                        recordPrompt.setText("Recording" + "...");
-//                        recordPromptCount = -1;
-//                    }
-//                    recordPromptCount++;
-//                }
-//            });
 
             startRecordingService();
-            //recordPrompt.setText("Recording" + ".");
-            recordPromptCount++;
+
         } else {
             startButton.setImageResource(R.drawable.ic_mic);
             chronometer.stop();
             chronometer.setBase(SystemClock.elapsedRealtime());
             timeWhenPaused = 0;
-            //recordPrompt.setText("Tap the button to start recording");
             stopRecordingService();
         }
     }
@@ -249,44 +286,15 @@ public class RecordFragment extends Fragment {
 
     private void onRecordPause(Boolean pause) {
         if (pause) {
-            //pauseButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_play, 0, 0, 0);
-            //recordPrompt.setText("Resume");
-            //pauseButton.setText("Resume");
             timeWhenPaused = chronometer.getBase() - SystemClock.elapsedRealtime();
             chronometer.stop();
             mediaRecorder.pause();
         } else {
-            //pauseButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_pause, 0, 0, 0);
-            //recordPrompt.setText("Pause");
-            //pauseButton.setText("Pause");
             chronometer.setBase(SystemClock.elapsedRealtime() + timeWhenPaused);
             chronometer.start();
             mediaRecorder.resume();
         }
     }
-
-    public void uploadAudio(File file, String patient_mail, String doctor_mail) throws IOException {
-
-        Log.e("Upload audio method", "In Upload audio method");
-        OkHttpClient client = new OkHttpClient();
-
-        MultipartBody multipartBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("patient_mail", patient_mail)
-                .addFormDataPart("medicine", "")
-                .addFormDataPart("doctor_mail", doctor_mail)
-                .addFormDataPart("file", "hi", RequestBody.create(WAV, file))
-                .build();
-        okhttp3.Request request = new okhttp3.Request.Builder().url(Constants.BASE_URL + "prescript/store/")
-                .post(multipartBody).build();
-        okhttp3.Response response = client.newCall(request).execute();
-        Log.d("tag", response.body().string());
-
-        if (!response.isSuccessful()) {
-            throw new IOException("Unexpected code " + response);
-        }
-        PRINT_URL = Constants.BASE_URL + "prescript/view/31";//response.body().string();
-    }
-
 
     private void showToast(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();

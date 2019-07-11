@@ -40,7 +40,7 @@ public class OkHttpUtils
         }
     }
 
-    public Call sendHttpPostRequest(String url, RequestBody requestBody)
+    public static Call sendHttpPostRequest(String url, RequestBody requestBody)
     {
         try
         {

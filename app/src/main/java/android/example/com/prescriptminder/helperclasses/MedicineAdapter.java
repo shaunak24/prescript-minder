@@ -47,6 +47,8 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
         return medicineArrayList.size();
     }
 
+    public static ArrayList<Medicine> getMedicineArrayList() { return medicineArrayList; }
+
     class MedicineViewHolder extends RecyclerView.ViewHolder
     {
         private TextView medicineText;
