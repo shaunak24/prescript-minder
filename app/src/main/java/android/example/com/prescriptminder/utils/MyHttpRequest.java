@@ -23,27 +23,21 @@ public class MyHttpRequest {
 
         OkHttpClient client = new OkHttpClient();
 
-        RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM).addFormDataPart("patient_mail", patient_mail)
-                .addFormDataPart("medicine", "Shaunak")
-                .addFormDataPart("doctor_mail", doctor_mail).build();
-        okhttp3.Request request_1 = new okhttp3.Request.Builder().url(Constants.BASE_URL + "prescript/store/")
-                .post(requestBody).build();
-        okhttp3.Response response_1 = client.newCall(request_1).execute();
-        String[] splits = response_1.body().string().split("/");
-        Log.e("tag", splits[splits.length - 1]);
-
         MultipartBody multipartBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("file", splits[splits.length - 1], RequestBody.create(MEDIA_TYPE_MP3, file)).build();
-        okhttp3.Request request_2 = new okhttp3.Request.Builder().url(Constants.BASE_URL + "prescript/uploadaudio/")
+                .addFormDataPart("patient_mail", patient_mail)
+                .addFormDataPart("medicine", "")
+                .addFormDataPart("doctor_mail", doctor_mail)
+                .addFormDataPart("file", "hi", RequestBody.create(MEDIA_TYPE_MP3, file))
+                .build();
+        okhttp3.Request request = new okhttp3.Request.Builder().url(Constants.BASE_URL + "prescript/store/")
                 .post(multipartBody).build();
-        okhttp3.Response response_2 = client.newCall(request_2).execute();
-        Log.d("tag", response_1.toString());
-        Log.d("tag", response_2.toString());
+        okhttp3.Response response = client.newCall(request).execute();
+        Log.d("tag", response.toString());
 
-        if (!response_1.isSuccessful() || !response_2.isSuccessful()) {
-            throw new IOException("Unexpected code " + response_1 + response_2);
+        if (!response.isSuccessful()) {
+            throw new IOException("Unexpected code " + response);
         }
-        return response_2;
+        return response;
     }
 
     public static File downloadAudio(String url) throws IOException {

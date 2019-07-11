@@ -1,119 +1,156 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/record_fragment"
+<?xml version="1.0" encoding="utf-8"?><!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"--><!--xmlns:app="http://schemas.android.com/apk/res-auto"--><!--android:id="@+id/record_fragment"--><!--android:layout_width="match_parent"--><!--android:layout_height="match_parent"--><!--android:orientation="vertical">-->
+
+<!--<android.support.design.widget.FloatingActionButton--><!--android:id="@+id/record_button"--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:layout_alignParentBottom="true"--><!--android:layout_centerInParent="true"--><!--android:layout_margin="20dp"--><!--android:src="@drawable/ic_mic"--><!--app:fab_colorNormal="@color/colorPrimary" />-->
+
+<!--<ProgressBar--><!--android:id="@+id/record_progress_bar"--><!--android:layout_width="200dp"--><!--android:layout_height="200dp"--><!--android:layout_alignParentTop="true"--><!--android:layout_centerHorizontal="true"--><!--android:layout_marginTop="30dp"--><!--android:background="@drawable/record_progressbar_bg"--><!--android:indeterminate="false"--><!--android:max="50"--><!--android:progress="0"--><!--android:progressDrawable="@drawable/record_progressbar" />-->
+
+<!--<Chronometer--><!--android:id="@+id/chronometer"--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:layout_alignBottom="@+id/record_progress_bar"--><!--android:layout_centerHorizontal="true"--><!--android:layout_marginBottom="64dp"--><!--android:fontFamily="sans-serif-condensed"--><!--android:textSize="35sp" />-->
+
+<!--<TextView--><!--android:id="@+id/recording_status"--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:layout_above="@+id/print_QR_button"--><!--android:layout_centerHorizontal="true"--><!--android:layout_marginBottom="40dp"--><!--android:maxLines="1"--><!--android:text="Tap the button to start recording"--><!--android:textColor="@android:color/black"--><!--android:textSize="20sp"--><!--android:textStyle="bold" />-->
+
+<!--<Button--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:id="@+id/upload_audio"--><!--android:background="@color/colorPrimary"--><!--android:text="UPLOAD"--><!--android:layout_margin="20dp"--><!--android:textColor="@android:color/white"--><!--android:layout_above="@+id/record_button"--><!--android:layout_centerHorizontal="true"--><!--android:layout_alignParentLeft="true"/>-->
+
+<!--<Button--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:id="@+id/print_QR_button"--><!--android:background="@color/colorPrimary"--><!--android:text="PRINT QR"--><!--android:layout_margin="20dp"--><!--android:textColor="@android:color/white"--><!--android:layout_above="@+id/record_button"--><!--android:layout_centerHorizontal="true"--><!--android:layout_alignParentRight="true"/>-->
+
+<!--<Button--><!--android:id="@+id/pause_button"--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:layout_alignParentBottom="true"--><!--android:layout_margin="20dp"--><!--android:background="@color/colorPrimary"--><!--android:drawableStart="@drawable/ic_pause"--><!--android:text="PAUSE"--><!--android:textColor="@android:color/white" />-->
+
+<!--<Button--><!--android:id="@+id/play_button"--><!--android:layout_width="wrap_content"--><!--android:layout_height="wrap_content"--><!--android:layout_alignParentBottom="true"--><!--android:layout_alignParentRight="true"--><!--android:layout_margin="20dp"--><!--android:background="@color/colorPrimary"--><!--android:drawableStart="@drawable/ic_play"--><!--android:text="PLAY"--><!--android:textColor="@android:color/white" />-->
+
+<!--</RelativeLayout>-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="wrap_content">
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/record_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerInParent="true"
-        android:layout_margin="20dp"
-        android:src="@drawable/ic_mic"
-        android:background="@color/colorPrimary"/>
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <Chronometer
-        android:id="@+id/chronometer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_marginBottom="64dp"
-        android:fontFamily="sans-serif-condensed"
-        android:textSize="35sp" />
+        <com.tyorikan.voicerecordingvisualizer.VisualizerView
+            android:id="@+id/visualizer"
+            android:layout_width="0dp"
+            android:layout_height="300dp"
+            android:layout_marginTop="64dp"
+            android:padding="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:numColumns="50"
+            app:renderRange="both"
+            app:renderType="fade" />
 
-    <TextView
-        android:id="@+id/recording_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/print_QR_button"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="40dp"
-        android:maxLines="1"
-        android:text="Tap the button to start recording"
-        android:textColor="@android:color/black"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        <Chronometer
+            android:id="@+id/chronometer2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="8dp"
+            android:textSize="48sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/visualizer" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/upload_audio"
-        android:background="@color/colorPrimary"
-        android:text="UPLOAD"
-        android:layout_margin="20dp"
-        android:textColor="@android:color/white"
-        android:layout_above="@+id/record_button"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentLeft="true"/>
+        <ImageView
+            android:id="@+id/print_QR_button"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="48dp"
+            android:background="@drawable/button_background"
+            android:contentDescription="Print QR code"
+            android:padding="12dp"
+            android:src="@drawable/ic_printer"
+            app:layout_constraintEnd_toStartOf="@+id/pause_button"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chronometer2" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/print_QR_button"
-        android:background="@color/colorPrimary"
-        android:text="PRINT QR"
-        android:layout_margin="20dp"
-        android:textColor="@android:color/white"
-        android:layout_above="@+id/record_button"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentRight="true"/>
+        <ImageView
+            android:id="@+id/pause_button"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="48dp"
+            android:background="@drawable/button_background"
+            android:contentDescription="Pause/Play audio"
+            android:padding="12dp"
+            android:src="@drawable/ic_pause_button"
+            app:layout_constraintEnd_toStartOf="@+id/record_button"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/print_QR_button"
+            app:layout_constraintTop_toBottomOf="@+id/chronometer2" />
 
-    <Button
-        android:id="@+id/pause_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="20dp"
-        android:background="@color/colorPrimary"
-        android:drawableStart="@drawable/ic_pause"
-        android:text="PAUSE"
-        android:textColor="@android:color/white" />
+        <ImageView
+            android:id="@+id/record_button"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="48dp"
+            android:background="@drawable/button_background"
+            android:contentDescription="Record/Stop audio"
+            android:padding="12dp"
+            android:src="@drawable/ic_microphone_2"
+            app:layout_constraintEnd_toStartOf="@+id/upload_audio"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/pause_button"
+            app:layout_constraintTop_toBottomOf="@+id/chronometer2" />
 
-    <Button
-        android:id="@+id/play_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_margin="20dp"
-        android:background="@color/colorPrimary"
-        android:drawableStart="@drawable/ic_play"
-        android:text="PLAY"
-        android:textColor="@android:color/white" />
+        <ImageView
+            android:id="@+id/upload_audio"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="48dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/button_background"
+            android:contentDescription="Upload audio"
+            android:padding="12dp"
+            android:src="@drawable/ic_upload"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/record_button"
+            app:layout_constraintTop_toBottomOf="@+id/chronometer2" />
 
-</RelativeLayout>
+        <View
+            android:id="@+id/view3"
+            android:layout_width="0dp"
+            android:layout_height="2dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:background="@color/colorAccent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/pause_button" />
 
-<!--<android.support.constraint.ConstraintLayout-->
-    <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
-    <!--xmlns:app="http://schemas.android.com/apk/res-auto"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent">-->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/medicine_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:nestedScrollingEnabled="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view3" />
 
-    <!--<com.tyorikan.voicerecordingvisualizer.VisualizerView-->
-        <!--android:id="@+id/visualizer"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="300dp"-->
-        <!--android:layout_marginTop="64dp"-->
-        <!--app:renderRange="both"-->
-        <!--app:renderType="fade"-->
-        <!--app:numColumns="50"-->
-        <!--android:padding="16dp"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toTopOf="parent" />-->
+        <Button
+            android:id="@+id/add_medicine_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/accent_button"
+            android:padding="8dp"
+            android:text="Add medicine"
+            android:textColor="#ffffff"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/medicine_recycler_view" />
 
-    <!--<Chronometer-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginStart="8dp"-->
-        <!--android:layout_marginTop="32dp"-->
-        <!--android:layout_marginEnd="8dp"-->
-        <!--android:textSize="48sp"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toBottomOf="@+id/visualizer" />-->
+    </android.support.constraint.ConstraintLayout>
 
-<!--</android.support.constraint.ConstraintLayout>-->
+</ScrollView>
