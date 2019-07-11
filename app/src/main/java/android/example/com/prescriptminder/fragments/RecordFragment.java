@@ -1,6 +1,8 @@
 package android.example.com.prescriptminder.fragments;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.example.com.prescriptminder.R;
 import android.example.com.prescriptminder.utils.MyHttpRequest;
 import android.media.MediaPlayer;
@@ -23,6 +25,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 import okhttp3.Response;
 
@@ -133,7 +136,9 @@ public class RecordFragment extends Fragment {
                     @Override
                     public void run() {
                         try {
-                            Response response = MyHttpRequest.uploadAudio(file);
+                            SharedPreferences sharedPref = Objects.requireNonNull(getActivity()).getPreferences(Context.MODE_PRIVATE);
+                            String email = sharedPref.getString("email", "null");
+                            Response response = MyHttpRequest.uploadAudio(file, "shaunak.12.24@gmail.com", email);
                             PRINT_URL = response.body().string();
                             Log.e("RecordActivity", PRINT_URL);
                         } catch (IOException e) {

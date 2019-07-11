@@ -19,15 +19,17 @@ public class MyHttpRequest {
 
     private static final MediaType MEDIA_TYPE_MP3 = MediaType.parse("audio/mpeg");
 
-    public static Response uploadAudio(File file) throws IOException {
+    public static Response uploadAudio(File file, String patient_mail, String doctor_mail) throws IOException {
 
         Log.d("tag", "In uploadAudio() method");
         OkHttpClient client = new OkHttpClient();
 
         MultipartBody multipartBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                .addFormDataPart("file", "Hi", RequestBody.create(MEDIA_TYPE_MP3, file)).build();
+                .addFormDataPart("file", "Hi", RequestBody.create(MEDIA_TYPE_MP3, file))
+                .addFormDataPart("medicine", "Shaunak").addFormDataPart("patient_mail", patient_mail)
+                .addFormDataPart("doctor_mail", doctor_mail).build();
 
-        okhttp3.Request request = new okhttp3.Request.Builder().url("http://192.168.43.250:8000/audio_db/" + file.getName() + "/upload/")
+        okhttp3.Request request = new okhttp3.Request.Builder().url(Constants.BASE_URL + "prescript/store/")
                 .post(multipartBody).build();
         okhttp3.Response response = client.newCall(request).execute();
         Log.d("tag", response.toString());

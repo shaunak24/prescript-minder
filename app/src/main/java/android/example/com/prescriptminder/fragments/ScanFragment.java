@@ -21,7 +21,7 @@ public class ScanFragment extends Fragment implements ZXingScannerView.ResultHan
 
     private static ScanFragment scanFragment;
     private ZXingScannerView scannerView;
-    private String result_url;
+    private static String result_url;
 
     public ScanFragment() {
         // Required empty public constructor
@@ -45,8 +45,8 @@ public class ScanFragment extends Fragment implements ZXingScannerView.ResultHan
 
     @Override
     public void handleResult(Result result) {
-        String resultText = result.getText();
-        Log.e("ScanResult", resultText);
+        result_url = result.getText();
+        Log.e("ScanResult", result_url);
     }
 
     @Override
@@ -65,5 +65,9 @@ public class ScanFragment extends Fragment implements ZXingScannerView.ResultHan
         if (scanFragment == null)
             scanFragment = new ScanFragment();
         return scanFragment;
+    }
+
+    public static String getUrl() {
+        return result_url;
     }
 }
