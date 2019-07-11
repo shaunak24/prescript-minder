@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
+import okhttp3.MediaType;
 import okhttp3.Response;
 
 /**
@@ -53,6 +54,7 @@ public class RecordFragment extends Fragment {
     private String fileName;
     private final String DIRECTORY_NAME = "/PrescriptMinder";
     private File file;
+    private static final MediaType MEDIA_TYPE_MP3 = MediaType.parse("audio/mpeg");
 
     public RecordFragment() {
         // Required empty public constructor
