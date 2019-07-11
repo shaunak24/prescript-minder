@@ -4,8 +4,10 @@ package android.example.com.prescriptminder.fragments;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.example.com.prescriptminder.R;
+import android.example.com.prescriptminder.helperclasses.Medicine;
 import android.example.com.prescriptminder.helperclasses.MedicineAdapter;
-import android.example.com.prescriptminder.utils.MyHttpRequest;
+import android.example.com.prescriptminder.utils.Constants;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
@@ -26,9 +28,13 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Objects;
 
-import okhttp3.Response;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -37,6 +43,7 @@ public class RecordFragment extends Fragment {
 
     private static RecordFragment recordFragment;
 
+    public static final MediaType WAV = MediaType.parse("audio/x-wav");
     public static String PRINT_URL;
     private ImageView startButton;
     private ImageView pauseButton;
@@ -53,7 +60,9 @@ public class RecordFragment extends Fragment {
     private String fileName;
     private File file;
     public static RecyclerView recyclerView;
+    private Button playButton;
     public static MedicineAdapter medicineAdapter;
+    private ArrayList<Medicine> arrayList;
 
     public RecordFragment() {
         // Required empty public constructor
@@ -73,16 +82,19 @@ public class RecordFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         recyclerView = view.findViewById(R.id.medicine_recycler_view);
+        playButton = view.findViewById(R.id.play_button);
         recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
         recyclerView.setHasFixedSize(false);
+        arrayList = new ArrayList<>();
         medicineAdapter = new MedicineAdapter(view.getContext());
+        recyclerView.setAdapter(medicineAdapter);
 
         final Button addMedicineButton = view.findViewById(R.id.add_medicine_button);
         addMedicineButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AddPrescriptionFragment addPrescriptionFragment = new AddPrescriptionFragment();
-                addPrescriptionFragment.setCancelable(false);
+                addPrescriptionFragment.setCancelable(true);
                 addPrescriptionFragment.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "Prescription");
             }
         });
@@ -113,19 +125,19 @@ public class RecordFragment extends Fragment {
             }
         });
 
-//        playButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                MediaPlayer mediaPlayer = new MediaPlayer();
-//                try {
-//                    mediaPlayer.setDataSource(outputFile);
-//                    mediaPlayer.prepare();
-//                    mediaPlayer.start();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MediaPlayer mediaPlayer = new MediaPlayer();
+                try {
+                    mediaPlayer.setDataSource(outputFile);
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         printQR.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -154,12 +166,13 @@ public class RecordFragment extends Fragment {
                         try {
                             SharedPreferences sharedPref = Objects.requireNonNull(getActivity()).getPreferences(Context.MODE_PRIVATE);
                             String email = sharedPref.getString("email", "null");
-                            Response response = MyHttpRequest.uploadAudio(file, "shaunak.12.24@gmail.com", email);
-                            PRINT_URL = response.body().string();
+                            uploadAudio(file, "shaunak.12.24@gmail.com", email);
                             Log.e("RecordActivity", PRINT_URL);
                         } catch (IOException e) {
                             e.printStackTrace();
                         } catch (NullPointerException e) {
+                            e.printStackTrace();
+                        } catch (IllegalStateException e) {
                             e.printStackTrace();
                         }
                     }
@@ -181,7 +194,7 @@ public class RecordFragment extends Fragment {
 
     private void onRecordStart(Boolean start) {
 
-        if(start) {
+        if (start) {
             startButton.setImageResource(R.drawable.ic_stop);
             showToast("Recording started");
 
@@ -207,8 +220,7 @@ public class RecordFragment extends Fragment {
             startRecordingService();
             //recordPrompt.setText("Recording" + ".");
             recordPromptCount++;
-        }
-        else {
+        } else {
             startButton.setImageResource(R.drawable.ic_mic);
             chronometer.stop();
             chronometer.setBase(SystemClock.elapsedRealtime());
@@ -235,15 +247,14 @@ public class RecordFragment extends Fragment {
     }
 
     private void onRecordPause(Boolean pause) {
-        if(pause) {
+        if (pause) {
             //pauseButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_play, 0, 0, 0);
             //recordPrompt.setText("Resume");
             //pauseButton.setText("Resume");
             timeWhenPaused = chronometer.getBase() - SystemClock.elapsedRealtime();
             chronometer.stop();
             mediaRecorder.pause();
-        }
-        else {
+        } else {
             //pauseButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_pause, 0, 0, 0);
             //recordPrompt.setText("Pause");
             //pauseButton.setText("Pause");
@@ -252,6 +263,29 @@ public class RecordFragment extends Fragment {
             mediaRecorder.resume();
         }
     }
+
+    public void uploadAudio(File file, String patient_mail, String doctor_mail) throws IOException {
+
+        Log.e("Upload audio method", "In Upload audio method");
+        OkHttpClient client = new OkHttpClient();
+
+        MultipartBody multipartBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("patient_mail", patient_mail)
+                .addFormDataPart("medicine", "")
+                .addFormDataPart("doctor_mail", doctor_mail)
+                .addFormDataPart("file", "hi", RequestBody.create(WAV, file))
+                .build();
+        okhttp3.Request request = new okhttp3.Request.Builder().url(Constants.BASE_URL + "prescript/store/")
+                .post(multipartBody).build();
+        okhttp3.Response response = client.newCall(request).execute();
+        Log.d("tag", response.body().string());
+
+        if (!response.isSuccessful()) {
+            throw new IOException("Unexpected code " + response);
+        }
+        PRINT_URL = response.body().string();
+    }
+
 
     private void showToast(String message) {
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();

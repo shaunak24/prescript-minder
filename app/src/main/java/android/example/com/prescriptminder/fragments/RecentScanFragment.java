@@ -7,18 +7,20 @@ import android.example.com.prescriptminder.R;
 import android.example.com.prescriptminder.utils.Constants;
 import android.example.com.prescriptminder.utils.Medicines;
 import android.example.com.prescriptminder.utils.MedicinesAdapter;
+import android.example.com.prescriptminder.utils.MyHttpRequest;
 import android.example.com.prescriptminder.utils.QRCodeUtil;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +29,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -53,6 +56,7 @@ public class RecentScanFragment extends Fragment {
     private TextView date;
     private TextView time;
     private ImageView qrcode;
+    private Button play;
 
     public RecentScanFragment() {
         // Required empty public constructor
@@ -77,11 +81,30 @@ public class RecentScanFragment extends Fragment {
         date = view.findViewById(R.id.date);
         time = view.findViewById(R.id.time);
         qrcode = view.findViewById(R.id.qrcode);
+        play = view.findViewById(R.id.play_audio);
         medicinesArrayList = new ArrayList<>();
 
-        ScanFragment scanFragment = new ScanFragment();
-        scanFragment.setTargetFragment(RecentScanFragment.this, 1);
-        FragmentManager fragmentManager = getFragmentManager();
+        play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            File file = MyHttpRequest.downloadAudio("http://10.194.168.231:8000/prescript/view/1/");//RecordFragment.PRINT_URL);
+                            MediaPlayer mediaPlayer = new MediaPlayer();
+                            mediaPlayer.setDataSource(file.getPath());
+                            mediaPlayer.prepare();
+                            mediaPlayer.start();
+                            mediaPlayer.release();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                thread.start();
+            }
+        });
 
         Thread thread = new Thread(new Runnable() {
             @Override

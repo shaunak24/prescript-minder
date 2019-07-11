@@ -40,6 +40,16 @@
             app:renderRange="both"
             app:renderType="fade" />
 
+        <Button
+            android:id="@+id/play_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="play"
+            app:layout_constraintBottom_toTopOf="@+id/chronometer2"
+            app:layout_constraintEnd_toEndOf="@+id/chronometer2"
+            app:layout_constraintStart_toStartOf="@+id/chronometer2" />
+
         <Chronometer
             android:id="@+id/chronometer2"
             android:layout_width="wrap_content"

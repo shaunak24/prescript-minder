@@ -41,7 +41,7 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    private FragmentManager fragmentManager;
+    private static FragmentManager fragmentManager;
     private BottomNavigationView navigation;
     public static Fragment fragment;
     private final BluetoothConnectFragment bluetoothConnectFragment = BluetoothConnectFragment.getBluetoothConnectFragment();
@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void replaceFragment(Fragment fragment) {
+    public static void replaceFragment(Fragment fragment) {
         fragmentManager.beginTransaction()
                 .replace(R.id.navigation_fragment_container, fragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)

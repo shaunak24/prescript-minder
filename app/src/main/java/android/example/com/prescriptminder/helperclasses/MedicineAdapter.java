@@ -32,7 +32,7 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
     @NonNull
     @Override
     public MedicineViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        return new MedicineViewHolder(layoutInflater.inflate(R.layout.list_layout, viewGroup, false));
+        return new MedicineViewHolder(layoutInflater.inflate(R.layout.medicine_list_layout, viewGroup, false));
     }
 
     @Override
@@ -52,8 +52,10 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
         private TextView medicineText;
         private TextView noteText;
 
-        MedicineViewHolder(@NonNull View itemView) {
+        public MedicineViewHolder(@NonNull View itemView) {
             super(itemView);
+            medicineText = itemView.findViewById(R.id.medicine_name_text);
+            noteText = itemView.findViewById(R.id.medicine_note_text);
         }
 
         void setMedicineText(String medicine)

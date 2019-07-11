@@ -17,22 +17,25 @@ import okhttp3.Response;
 
 public class MyHttpRequest {
 
-    private static final MediaType MEDIA_TYPE_MP3 = MediaType.parse("audio/mpeg");
+    public static final MediaType WAV = MediaType.parse("audio/x-wav");
 
     public static Response uploadAudio(File file, String patient_mail, String doctor_mail) throws IOException {
 
+        Log.e("Upload audio method", "In Upload audio method");
         OkHttpClient client = new OkHttpClient();
 
         MultipartBody multipartBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
                 .addFormDataPart("patient_mail", patient_mail)
                 .addFormDataPart("medicine", "")
                 .addFormDataPart("doctor_mail", doctor_mail)
-                .addFormDataPart("file", "hi", RequestBody.create(MEDIA_TYPE_MP3, file))
+                .addFormDataPart("file", "hi", RequestBody.create(WAV, file))
                 .build();
         okhttp3.Request request = new okhttp3.Request.Builder().url(Constants.BASE_URL + "prescript/store/")
                 .post(multipartBody).build();
         okhttp3.Response response = client.newCall(request).execute();
-        Log.d("tag", response.toString());
+        Log.e("Upload audio method", "In Upload audio method");
+        Log.d("tag", response.body().string());
+        Log.e("Upload audio method", "In Upload audio method");
 
         if (!response.isSuccessful()) {
             throw new IOException("Unexpected code " + response);

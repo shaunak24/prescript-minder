@@ -4,13 +4,15 @@ public class Medicine
 {
     private String medicineName;
     private String note;
+    private String details;
 
     public Medicine() {
     }
 
-    public Medicine(String medicineName, String note) {
+    public Medicine(String medicineName, String note, String details) {
         this.medicineName = medicineName;
         this.note = note;
+        this.details = details;
     }
 
     public String getMedicineName() {
@@ -24,6 +26,8 @@ public class Medicine
     public String getNote() {
         return note;
     }
+
+    public String getDetails() { return details; }
 
     public void setNote(String note) {
         this.note = note;

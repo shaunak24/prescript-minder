@@ -37,7 +37,7 @@ public class AddPrescriptionFragment extends DialogFragment {
     public void onStart() {
         super.onStart();
         Dialog dialog = getDialog();
-        Objects.requireNonNull(dialog.getWindow()).setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+        Objects.requireNonNull(dialog.getWindow()).setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
     }
 
@@ -74,8 +74,7 @@ public class AddPrescriptionFragment extends DialogFragment {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!TextUtils.isEmpty(medicineText.getText()))
-                {
+                if (!TextUtils.isEmpty(medicineText.getText())) {
                     String medicineName = medicineText.getText().toString();
                     String timing = "";
                     CheckBox bbCheck = view.findViewById(R.id.bb_checkbox);
@@ -108,18 +107,15 @@ public class AddPrescriptionFragment extends DialogFragment {
                         timing += "1";
                     else
                         timing += "0";
-                    EditText noteText = view.findViewById(R.id.note_text);
 
+                    EditText noteText = view.findViewById(R.id.note_text);
                     String note = noteText.getText().toString();
-                    Medicine medicine = new Medicine(medicineName, note);
+                    Medicine medicine = new Medicine(medicineName, note, timing);
                     RecordFragment.medicineAdapter.addMedicine(medicine);
                     RecordFragment.recyclerView.setAdapter(RecordFragment.medicineAdapter);
 
-                    //TODO: Make network call before dismiss()
-
                     dismiss();
-                }
-                else
+                } else
                     Toast.makeText(getContext(), "Medicine name cannot be blank", Toast.LENGTH_SHORT).show();
             }
         });
