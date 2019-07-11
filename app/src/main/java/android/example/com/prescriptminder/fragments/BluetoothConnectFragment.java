@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.example.com.prescriptminder.R;
+import android.example.com.prescriptminder.utils.Constants;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -115,10 +116,11 @@ public class BluetoothConnectFragment extends Fragment {
         bluetooth_discoverable.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!bluetoothAdapter.isDiscovering()) {
-                    Intent discoverable = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-                    startActivityForResult(discoverable, REQUEST_DISCOVERABLE);
-                }
+                sendUrl(Constants.BASE_URL + "prescript/view/31/");
+//                if (!bluetoothAdapter.isDiscovering()) {
+//                    Intent discoverable = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+//                    startActivityForResult(discoverable, REQUEST_DISCOVERABLE);
+//                }
             }
         });
 

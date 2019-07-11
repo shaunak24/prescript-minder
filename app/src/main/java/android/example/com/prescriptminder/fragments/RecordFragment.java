@@ -147,6 +147,7 @@ public class RecordFragment extends Fragment {
                     public void run() {
                         try {
                             BluetoothConnectFragment.sendUrl(PRINT_URL);
+                            Log.e("tag", "Printing QR");
                         } catch (NullPointerException e) {
                             e.printStackTrace();
                         }
@@ -283,7 +284,7 @@ public class RecordFragment extends Fragment {
         if (!response.isSuccessful()) {
             throw new IOException("Unexpected code " + response);
         }
-        PRINT_URL = response.body().string();
+        PRINT_URL = Constants.BASE_URL + "prescript/view/31";//response.body().string();
     }
 
 

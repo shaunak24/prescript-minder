@@ -87,7 +87,7 @@ public class ScanFragment extends Fragment implements ZXingScannerView.ResultHan
                 .setMessage(url)
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        MainActivity.replaceFragment(new RecentScanFragment());
+                        MainActivity.replaceFragment(new RecordFragment());
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
