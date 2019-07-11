@@ -20,8 +20,8 @@ import me.dm7.barcodescanner.zxing.ZXingScannerView;
 public class ScanFragment extends Fragment implements ZXingScannerView.ResultHandler {
 
     private static ScanFragment scanFragment;
-
     private ZXingScannerView scannerView;
+    private String result_url;
 
     public ScanFragment() {
         // Required empty public constructor

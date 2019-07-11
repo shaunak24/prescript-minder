@@ -1,5 +1,6 @@
 package android.example.com.prescriptminder.activities;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,10 +11,13 @@ import android.example.com.prescriptminder.fragments.RecentScanFragment;
 import android.example.com.prescriptminder.fragments.RecordFragment;
 import android.example.com.prescriptminder.fragments.ScanFragment;
 import android.example.com.prescriptminder.utils.Constants;
+import android.example.com.prescriptminder.utils.MyHttpRequest;
 import android.example.com.prescriptminder.utils.OkHttpUtils;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -27,6 +31,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -45,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private final RecordFragment recordFragment = RecordFragment.getRecordFragment();
     private final ScanFragment scanFragment = ScanFragment.getScanFragment();
     private ProgressDialog progressDialog;
+    private final int REQUEST_PERMISSIONS = 1;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -80,8 +86,7 @@ public class MainActivity extends AppCompatActivity {
 
                         @Override
                         public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                            try
-                            {
+                            try {
                                 JSONObject jsonObject = new JSONObject(Objects.requireNonNull(response.body()).string());
                                 SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sharedPref.edit();
@@ -97,9 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
                                 if (fragment != profileFragment)
                                     replaceFragment(profileFragment);
-                            }
-                            catch (Exception e)
-                            {
+                            } catch (Exception e) {
                                 Log.e("onResponse", e.toString());
                             }
                         }
@@ -129,6 +132,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ActivityCompat.requestPermissions(Objects.requireNonNull(MainActivity.this), new String[]{Manifest.permission.CAMERA,
+                        Manifest.permission.RECORD_AUDIO, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                REQUEST_PERMISSIONS);
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    File file = MyHttpRequest.downloadAudio(Constants.BASE_URL + "prescript/getaudio/audio1/");
+                    MediaPlayer mediaPlayer = new MediaPlayer();
+                    mediaPlayer.setDataSource(file.getPath());
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                    mediaPlayer.release();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
+
         String userType = getIntent().getStringExtra("userType");
 
         navigation = findViewById(R.id.nav_view);
@@ -136,13 +160,10 @@ public class MainActivity extends AppCompatActivity {
         Menu navigationMenu = navigation.getMenu();
         MenuItem recordMenuItem = navigationMenu.findItem(R.id.navigation_record_audio);
         MenuItem connectMenuItem = navigationMenu.findItem(R.id.navigation_connect_device);
-        if (userType.equalsIgnoreCase("doctor"))
-        {
+        if (userType.equalsIgnoreCase("doctor")) {
             recordMenuItem.setVisible(true);
             connectMenuItem.setVisible(true);
-        }
-        else
-        {
+        } else {
             recordMenuItem.setVisible(false);
             connectMenuItem.setVisible(false);
         }
@@ -152,17 +173,15 @@ public class MainActivity extends AppCompatActivity {
         replaceFragment(fragment);
     }
 
-    private void dismissProgressDialog()
-    {
+    private void dismissProgressDialog() {
         if (progressDialog != null && progressDialog.isShowing())
             progressDialog.dismiss();
     }
 
 
-    private void replaceFragment(Fragment fragment)
-    {
+    private void replaceFragment(Fragment fragment) {
         fragmentManager.beginTransaction()
-                .replace(R.id.navigation_fragment_container,fragment)
+                .replace(R.id.navigation_fragment_container, fragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commitAllowingStateLoss();
         MainActivity.fragment = fragment;

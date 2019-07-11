@@ -7,16 +7,19 @@ import android.example.com.prescriptminder.R;
 import android.example.com.prescriptminder.utils.Constants;
 import android.example.com.prescriptminder.utils.Medicines;
 import android.example.com.prescriptminder.utils.MedicinesAdapter;
+import android.example.com.prescriptminder.utils.QRCodeUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +52,7 @@ public class RecentScanFragment extends Fragment {
     private TextView pres_id;
     private TextView date;
     private TextView time;
+    private ImageView qrcode;
 
     public RecentScanFragment() {
         // Required empty public constructor
@@ -72,7 +76,12 @@ public class RecentScanFragment extends Fragment {
         pres_id = view.findViewById(R.id.prescription_id);
         date = view.findViewById(R.id.date);
         time = view.findViewById(R.id.time);
+        qrcode = view.findViewById(R.id.qrcode);
         medicinesArrayList = new ArrayList<>();
+
+        ScanFragment scanFragment = new ScanFragment();
+        scanFragment.setTargetFragment(RecentScanFragment.this, 1);
+        FragmentManager fragmentManager = getFragmentManager();
 
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -145,6 +154,7 @@ public class RecentScanFragment extends Fragment {
         pres_id.setText(jsonObject.getString("id"));
         date.setText(jsonObject.getString("date"));
         time.setText(jsonObject.getString("time"));
+        qrcode.setImageBitmap(QRCodeUtil.encodeAsBitmap(jsonObject.getString("audio_name"), 100, 100));
     }
 
     public static RecentScanFragment getRecentScanFragment() {

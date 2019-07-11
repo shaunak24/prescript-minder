@@ -8,8 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.DateFormat;
-import java.util.Date;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -47,7 +45,7 @@ public class MyHttpRequest {
 
         InputStream inputStream = response.body().byteStream();
 
-        File receivedFile = new File(Environment.getExternalStorageDirectory(), DateFormat.getDateTimeInstance().format(new Date()));
+        File receivedFile = new File(Environment.getExternalStorageDirectory(), "audio1");//DateFormat.getDateTimeInstance().format(new Date()));
         OutputStream outputStream = new FileOutputStream(receivedFile);
         try {
             byte[] buffer = new byte[4 * 1024];

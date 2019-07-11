@@ -17,6 +17,12 @@
             android:layout_height="wrap_content"
             android:padding="8dp">
 
+            <ImageView
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:id="@+id/qrcode"
+                android:layout_alignParentEnd="true" />
+
             <LinearLayout
                 android:id="@+id/linear_1"
                 android:layout_width="match_parent"

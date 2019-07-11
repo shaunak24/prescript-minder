@@ -2,21 +2,29 @@ package android.example.com.prescriptminder.fragments;
 
 
 import android.example.com.prescriptminder.R;
+import android.example.com.prescriptminder.utils.MyHttpRequest;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.IOException;
+
+import okhttp3.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -26,11 +34,11 @@ public class RecordFragment extends Fragment {
     private static RecordFragment recordFragment;
 
     public static String PRINT_URL;
-//    private FloatingActionButton startButton;
-//    private Button pauseButton;
-//    private Button playButton;
-//    private Button printQR;
-//    private Button upload;
+    private FloatingActionButton startButton;
+    private Button pauseButton;
+    private Button playButton;
+    private Button printQR;
+    private Button upload;
     private TextView recordPrompt;
     private int recordPromptCount = 0;
     private Boolean startRecording = true;
@@ -60,84 +68,84 @@ public class RecordFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         chronometer = view.findViewById(R.id.chronometer);
-//        startButton = view.findViewById(R.id.record_button);
-//        pauseButton = view.findViewById(R.id.pause_button);
-//        printQR = view.findViewById(R.id.print_QR_button);
-//        recordPrompt = view.findViewById(R.id.recording_status);
-//        playButton = view.findViewById(R.id.play_button);
-//        upload = view.findViewById(R.id.upload_audio);
+        startButton = view.findViewById(R.id.record_button);
+        pauseButton = view.findViewById(R.id.pause_button);
+        printQR = view.findViewById(R.id.print_QR_button);
+        recordPrompt = view.findViewById(R.id.recording_status);
+        playButton = view.findViewById(R.id.play_button);
+        upload = view.findViewById(R.id.upload_audio);
 
         check_directory();
         mediaRecorder_setup();
 
-//        startButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                onRecordStart(startRecording);
-//                startRecording = !startRecording;
-//            }
-//        });
+        startButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onRecordStart(startRecording);
+                startRecording = !startRecording;
+            }
+        });
 
-//        pauseButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                onRecordPause(pauseRecording);
-//                pauseRecording = !pauseRecording;
-//            }
-//        });
-//
-//        playButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                MediaPlayer mediaPlayer = new MediaPlayer();
-//                try {
-//                    mediaPlayer.setDataSource(outputFile);
-//                    mediaPlayer.prepare();
-//                    mediaPlayer.start();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
+        pauseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onRecordPause(pauseRecording);
+                pauseRecording = !pauseRecording;
+            }
+        });
 
-//        printQR.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Thread thread = new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        try {
-//                            BluetoothConnectFragment.sendUrl(PRINT_URL);
-//                        } catch (NullPointerException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                });
-//                thread.start();
-//            }
-//        });
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MediaPlayer mediaPlayer = new MediaPlayer();
+                try {
+                    mediaPlayer.setDataSource(outputFile);
+                    mediaPlayer.prepare();
+                    mediaPlayer.start();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
-//        upload.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                file = new File(outputFile);
-//                Thread thread = new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        try {
-//                            Response response = MyHttpRequest.uploadAudio(file);
-//                            PRINT_URL = response.body().string();
-//                            Log.e("RecordActivity", PRINT_URL);
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        } catch (NullPointerException e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                });
-//                thread.start();
-//            }
-//        });
+        printQR.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            BluetoothConnectFragment.sendUrl(PRINT_URL);
+                        } catch (NullPointerException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                thread.start();
+            }
+        });
+
+        upload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                file = new File(outputFile);
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Response response = MyHttpRequest.uploadAudio(file);
+                            PRINT_URL = response.body().string();
+                            Log.e("RecordActivity", PRINT_URL);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (NullPointerException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                thread.start();
+            }
+        });
     }
 
     private void check_directory() {
@@ -159,7 +167,7 @@ public class RecordFragment extends Fragment {
     private void onRecordStart(Boolean start) {
 
         if(start) {
-//            startButton.setImageResource(R.drawable.ic_stop);
+            startButton.setImageResource(R.drawable.ic_stop);
             showToast("Recording started");
 
             chronometer.setBase(SystemClock.elapsedRealtime());
@@ -186,7 +194,7 @@ public class RecordFragment extends Fragment {
             recordPromptCount++;
         }
         else {
-//            startButton.setImageResource(R.drawable.ic_mic);
+            startButton.setImageResource(R.drawable.ic_mic);
             chronometer.stop();
             chronometer.setBase(SystemClock.elapsedRealtime());
             timeWhenPaused = 0;
@@ -213,17 +221,17 @@ public class RecordFragment extends Fragment {
 
     private void onRecordPause(Boolean pause) {
         if(pause) {
-//            pauseButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_play, 0, 0, 0);
+            pauseButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_play, 0, 0, 0);
             recordPrompt.setText("Resume");
-//            pauseButton.setText("Resume");
+            pauseButton.setText("Resume");
             timeWhenPaused = chronometer.getBase() - SystemClock.elapsedRealtime();
             chronometer.stop();
             mediaRecorder.pause();
         }
         else {
-//            pauseButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_pause, 0, 0, 0);
+            pauseButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_pause, 0, 0, 0);
             recordPrompt.setText("Pause");
-//            pauseButton.setText("Pause");
+            pauseButton.setText("Pause");
             chronometer.setBase(SystemClock.elapsedRealtime() + timeWhenPaused);
             chronometer.start();
             mediaRecorder.resume();
