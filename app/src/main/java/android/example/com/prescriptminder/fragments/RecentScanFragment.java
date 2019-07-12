@@ -15,12 +15,9 @@ import android.example.com.prescriptminder.utils.QRCodeUtil;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -37,10 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -68,6 +62,7 @@ public class RecentScanFragment extends Fragment {
     private ImageView qrcode;
     private Button play;
     private String audio_name;
+    private Button hindi;
 
     public RecentScanFragment() {
         // Required empty public constructor
@@ -92,7 +87,30 @@ public class RecentScanFragment extends Fragment {
         date = view.findViewById(R.id.date);
         time = view.findViewById(R.id.time);
         qrcode = view.findViewById(R.id.qrcode);
+        hindi = view.findViewById(R.id.hindi);
         medicinesArrayList = new ArrayList<>();
+
+        hindi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String url = Constants.BASE_URL;
+                        try {
+                            File file = MyHttpRequest.downloadAudio(url);
+                            MediaPlayer mediaPlayer = new MediaPlayer();
+                            mediaPlayer.setDataSource(file.getPath());
+                            mediaPlayer.prepare();
+                            mediaPlayer.start();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                thread.start();
+            }
+        });
 
         qrcode.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -153,35 +171,6 @@ public class RecentScanFragment extends Fragment {
         }
     }
 
-    private File convertToFile(InputStream byteStream) throws IOException {
-        InputStream inputStream = byteStream;
-
-        File receivedFile = new File(Environment.getExternalStorageDirectory(), "Hi");
-        OutputStream outputStream = new FileOutputStream(receivedFile);
-        try {
-            byte[] buffer = new byte[4 * 1024];
-            int read;
-
-            while ((read = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, read);
-            }
-            outputStream.flush();
-        } finally {
-            outputStream.close();
-        }
-        return receivedFile;
-    }
-
-    private static void showNotification(String name, String time) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getRecentScanFragment().getActivity())
-                .setSmallIcon(R.drawable.logo)
-                .setContentTitle("Reminder to take medicines")
-                .setContentText("Medicine " + name + " should be taken at " + time)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getRecentScanFragment().getContext());
-        notificationManager.notify(1, builder.build());
-    }
-
     private void getMedicineInfo() throws IOException, JSONException, NullPointerException {
         String url = RecordFragment.PRINT_URL;
         Log.e("URL", url);
@@ -192,7 +181,7 @@ public class RecentScanFragment extends Fragment {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-
+                e.printStackTrace();
             }
 
             @Override
@@ -214,6 +203,7 @@ public class RecentScanFragment extends Fragment {
                         }
                     }
                 });
+                Log.e("Audio name", audio_name);
                 File file = MyHttpRequest.downloadAudio(Constants.BASE_URL + "prescript/getaudio/" + "2019-07-12 13:07:23.wav" + "/");
                 MediaPlayer mediaPlayer = new MediaPlayer();
                 mediaPlayer.setDataSource(file.getPath());
