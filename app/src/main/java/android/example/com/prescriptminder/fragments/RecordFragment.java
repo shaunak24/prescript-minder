@@ -4,7 +4,6 @@ package android.example.com.prescriptminder.fragments;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.example.com.prescriptminder.R;
-import android.example.com.prescriptminder.activities.MainActivity;
 import android.example.com.prescriptminder.helperclasses.Medicine;
 import android.example.com.prescriptminder.helperclasses.MedicineAdapter;
 import android.example.com.prescriptminder.utils.Constants;
@@ -17,6 +16,8 @@ import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -137,6 +138,7 @@ public class RecordFragment extends Fragment {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                showNotification("Medicine 1", "8 am");
             }
         });
 
@@ -149,6 +151,7 @@ public class RecordFragment extends Fragment {
                         try {
                             BluetoothConnectFragment.sendUrl(PRINT_URL);
                             Log.e("tag", "Printing QR");
+                            //MainActivity.replaceFragment(RecentScanFragment.getRecentScanFragment());
                         } catch (NullPointerException e) {
                             e.printStackTrace();
                         }
@@ -182,6 +185,16 @@ public class RecordFragment extends Fragment {
         });
     }
 
+    private static void showNotification(String name, String time) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getRecordFragment().getActivity())
+                .setSmallIcon(R.drawable.logo)
+                .setContentTitle("Reminder to take medicines")
+                .setContentText("Medicine " + name + " should be taken at " + time)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getRecordFragment().getContext());
+        notificationManager.notify(1, builder.build());
+    }
+
     private void sendMedicineData(ArrayList<Medicine> arrayList) throws JSONException {
         String url = Constants.BASE_URL + "prescript/store/";
         final SharedPreferences sharedPref = Objects.requireNonNull(getActivity()).getPreferences(Context.MODE_PRIVATE);
@@ -199,6 +212,7 @@ public class RecordFragment extends Fragment {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 PRINT_URL = response.body().string();
+                Log.e("PRINT URL", PRINT_URL);
                 String[] split = PRINT_URL.split("/");
                 pres_id = split[split.length - 1];
                 MultipartBody multipartBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
@@ -214,7 +228,6 @@ public class RecordFragment extends Fragment {
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
                         Log.e("Audio upload response", response.body().string());
-                        MainActivity.replaceFragment(RecentScanFragment.getRecentScanFragment());
                     }
                 });
             }
