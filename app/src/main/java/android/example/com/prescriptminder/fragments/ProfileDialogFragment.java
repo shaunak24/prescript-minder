@@ -5,9 +5,10 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.example.com.prescriptminder.R;
-import android.example.com.prescriptminder.activities.LoginActivity;
 import android.example.com.prescriptminder.activities.MainActivity;
+import android.example.com.prescriptminder.activities.WelcomeActivity;
 import android.example.com.prescriptminder.utils.Constants;
 import android.example.com.prescriptminder.utils.OkHttpUtils;
 import android.graphics.Color;
@@ -61,6 +62,7 @@ import okhttp3.Response;
 public class ProfileDialogFragment extends DialogFragment {
 
     private static EditText birthdayText;
+    private static ProfileDialogFragment profileDialogFragment;
 
     public ProfileDialogFragment() {
         // Required empty public constructor
@@ -153,7 +155,6 @@ public class ProfileDialogFragment extends DialogFragment {
                 {
                     try
                     {
-                        //TODO: Change url
                         final String url = Constants.BASE_URL + "user/update/";
                         FormBody.Builder formBodyBuilder = new FormBody.Builder();
                         formBodyBuilder.add("email", Objects.requireNonNull(email));
@@ -178,11 +179,24 @@ public class ProfileDialogFragment extends DialogFragment {
                                     String status = responseJson.getString("status");
                                     if (status.equalsIgnoreCase("ok"))
                                     {
+                                        Bundle bundle = getArguments();
+                                        String userType = Objects.requireNonNull(bundle).getString("userType");
                                         dismiss();
-                                        Intent intent = new Intent(getContext(), MainActivity.class);
-                                        intent.putExtra("userType", LoginActivity.userType);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                        startActivity(intent);
+                                        SharedPreferences sharedPref = Objects.requireNonNull(getActivity()).getPreferences(Context.MODE_PRIVATE);
+                                        if (sharedPref.getBoolean("isFirstTime", true))
+                                        {
+                                            Intent intent = new Intent(getContext(), WelcomeActivity.class);
+                                            intent.putExtra("userType", userType);
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                            startActivity(intent);
+                                        }
+                                        else
+                                        {
+                                            Intent intent = new Intent(getContext(), MainActivity.class);
+                                            intent.putExtra("userType", userType);
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                            startActivity(intent);
+                                        }
                                     }
                                 }
                                 catch (Exception e)
@@ -249,5 +263,11 @@ public class ProfileDialogFragment extends DialogFragment {
             String date = day + "-" + (month+1) + "-" + year;
             birthdayText.setText(date);
         }
+    }
+
+    public static ProfileDialogFragment getProfileDialogFragment() {
+        if (profileDialogFragment == null)
+            profileDialogFragment = new ProfileDialogFragment();
+        return profileDialogFragment;
     }
 }

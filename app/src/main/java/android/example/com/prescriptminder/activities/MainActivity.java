@@ -68,8 +68,6 @@ public class MainActivity extends AppCompatActivity {
                     final String personName = googleSignInAccount.getGivenName() + " " + googleSignInAccount.getFamilyName();
                     final String profilePicture = Objects.requireNonNull(googleSignInAccount.getPhotoUrl()).toString();
 
-//                    OkHttpClient okHttpClient = new OkHttpClient();
-//                    Request request = new Request.Builder().url(url).get().build();
                     String url = Constants.BASE_URL + "user/get/" + email + "/";
                     Call call = OkHttpUtils.getOkHttpUtils().sendHttpGetRequest(url);
                     call.enqueue(new Callback() {
@@ -104,8 +102,6 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
                     });
-//                    if (fragment != profileFragment)
-//                        replaceFragment(profileFragment);
                     return true;
                 case R.id.navigation_recent_scan:
                     if (fragment != recentScanFragment)

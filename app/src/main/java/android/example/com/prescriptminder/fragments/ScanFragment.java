@@ -31,8 +31,6 @@ public class ScanFragment extends Fragment implements ZXingScannerView.ResultHan
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-//        MainActivity.navigation.setSelectedItemId(R.id.navigation_scan_qr_code);
-
         // Inflate the layout for this fragment
         scannerView = new ZXingScannerView(getContext());
         return scannerView;

@@ -1,7 +1,9 @@
 package android.example.com.prescriptminder.activities;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.example.com.prescriptminder.R;
 import android.example.com.prescriptminder.fragments.ProfileDialogFragment;
 import android.example.com.prescriptminder.utils.Constants;
@@ -41,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     private GoogleSignInClient googleSignInClient;
     private GoogleSignInButton googleSignInButton;
     private JSONObject loginJson;
-    public static String userType;
+    private String userType;
     private boolean isFilled;
     private String status;
     private ProgressDialog progressDialog;
@@ -121,11 +123,23 @@ public class LoginActivity extends AppCompatActivity {
         if (account != null)
         {
             dismissProgressDialog();
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra("userType", userType);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
+            SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+            if (sharedPref.getBoolean("isFirstTime", true))
+            {
+                Intent intent = new Intent(this, WelcomeActivity.class);
+                intent.putExtra("userType", userType);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            }
+            else
+            {
+                Intent intent = new Intent(this, MainActivity.class);
+                intent.putExtra("userType", userType);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            }
         }
         else
             googleSignInButton.setEnabled(true);
@@ -147,13 +161,8 @@ public class LoginActivity extends AppCompatActivity {
     {
         try
         {
-            //TODO: Change url
             final String url = Constants.BASE_URL + "user/verification/";
             FormBody formBody = new FormBody.Builder().add("idToken", Objects.requireNonNull(account.getIdToken())).build();
-//            OkHttpClient okHttpClient = new OkHttpClient();
-//            Request request = new Request.Builder().url(url).post(formBody).build();
-
-//            Call call = okHttpClient.newCall(request);
             Call call = OkHttpUtils.getOkHttpUtils().sendHttpPostRequest(url, formBody);
             call.enqueue(new Callback() {
                 @Override
@@ -175,7 +184,10 @@ public class LoginActivity extends AppCompatActivity {
                             else
                             {
                                 dismissProgressDialog();
-                                ProfileDialogFragment profileDialogFragment = new ProfileDialogFragment();
+                                ProfileDialogFragment profileDialogFragment = ProfileDialogFragment.getProfileDialogFragment();
+                                Bundle bundle = new Bundle();
+                                bundle.putString("userType", userType);
+                                profileDialogFragment.setArguments(bundle);
                                 profileDialogFragment.setCancelable(false);
                                 profileDialogFragment.show(getSupportFragmentManager(), "User");
                             }

@@ -29,6 +29,8 @@ import java.util.Objects;
  */
 public class AddPrescriptionFragment extends DialogFragment {
 
+    private static AddPrescriptionFragment addPrescriptionFragment;
+
     public AddPrescriptionFragment() {
         // Required empty public constructor
     }
@@ -123,6 +125,11 @@ public class AddPrescriptionFragment extends DialogFragment {
                     Toast.makeText(getContext(), "Medicine name cannot be blank", Toast.LENGTH_SHORT).show();
             }
         });
+    }
 
+    public static AddPrescriptionFragment getAddPrescriptionFragment() {
+        if (addPrescriptionFragment == null)
+            addPrescriptionFragment = new AddPrescriptionFragment();
+        return addPrescriptionFragment;
     }
 }

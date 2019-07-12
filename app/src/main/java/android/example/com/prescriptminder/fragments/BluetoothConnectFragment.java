@@ -79,8 +79,6 @@ public class BluetoothConnectFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-//        MainActivity.navigation.setSelectedItemId(R.id.navigation_connect_device);
-
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_bluetooth_connect, container, false);
     }

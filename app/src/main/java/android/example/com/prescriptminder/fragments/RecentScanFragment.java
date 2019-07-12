@@ -25,8 +25,6 @@ public class RecentScanFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-//        MainActivity.navigation.setSelectedItemId(R.id.navigation_recent_scan);
-
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_recent_scan, container, false);
     }

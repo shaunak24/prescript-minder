@@ -57,8 +57,6 @@ public class RecordFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-//        MainActivity.navigation.setSelectedItemId(R.id.navigation_record_audio);
-
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_record, container, false);
     }
@@ -75,7 +73,7 @@ public class RecordFragment extends Fragment {
         addMedicineButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AddPrescriptionFragment addPrescriptionFragment = new AddPrescriptionFragment();
+                AddPrescriptionFragment addPrescriptionFragment = AddPrescriptionFragment.getAddPrescriptionFragment();
                 addPrescriptionFragment.setCancelable(false);
                 addPrescriptionFragment.show(Objects.requireNonNull(getActivity()).getSupportFragmentManager(), "Prescription");
             }

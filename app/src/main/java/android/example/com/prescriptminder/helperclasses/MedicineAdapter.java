@@ -14,7 +14,7 @@ public class MedicineAdapter extends RecyclerView.Adapter<MedicineAdapter.Medici
 {
     private Context context;
     private LayoutInflater layoutInflater;
-    public static ArrayList<Medicine> medicineArrayList;
+    private static ArrayList<Medicine> medicineArrayList;
 
     public MedicineAdapter(Context context)
     {

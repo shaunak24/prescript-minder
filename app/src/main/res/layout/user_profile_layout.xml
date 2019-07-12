@@ -193,7 +193,8 @@
                     android:layout_width="112dp"
                     android:layout_height="wrap_content"
                     android:hint="Birthday"
-                    android:textSize="20sp" />
+                    android:textSize="20sp"
+                    android:configChanges="keyboardHidden"/>
 
             </android.support.design.widget.TextInputLayout>
 

@@ -68,8 +68,6 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-//        MainActivity.navigation.setSelectedItemId(R.id.navigation_profile);
-
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
@@ -162,7 +160,6 @@ public class ProfileFragment extends Fragment {
                 {
                     try
                     {
-                        //TODO: Change url
                         final String url = Constants.BASE_URL + "user/update/";
                         FormBody.Builder formBodyBuilder = new FormBody.Builder();
                         formBodyBuilder.add("email", Objects.requireNonNull(email));
@@ -170,8 +167,6 @@ public class ProfileFragment extends Fragment {
                         formBodyBuilder.add("birthday", birthdayText.getText().toString());
                         formBodyBuilder.add("city", cityText.getText().toString());
                         FormBody formBody = formBodyBuilder.build();
-//                        OkHttpClient okHttpClient = new OkHttpClient();
-//                        Request request = new Request.Builder().url(url).post(formBody).build();
                         Call call = OkHttpUtils.getOkHttpUtils().sendHttpPostRequest(url, formBody);
                         call.enqueue(new Callback() {
                             @Override
